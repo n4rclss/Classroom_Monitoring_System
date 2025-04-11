@@ -8,13 +8,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Server
+namespace Server.Forms
 {
-    public partial class Form1: Form
+    public partial class Dashboard: Form
     {
-        public Form1()
+        public Dashboard()
         {
             InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
