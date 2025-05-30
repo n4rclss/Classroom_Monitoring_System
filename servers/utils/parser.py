@@ -1,4 +1,4 @@
-from ..models.messages import LoginMessage, JoinClassMessage, ChatMessage
+from models.messages import LoginMessage, JoinClassMessage, ChatMessage
 import json
 
 MESSAGE_TYPES = {
