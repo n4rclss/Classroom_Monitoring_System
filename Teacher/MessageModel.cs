@@ -15,7 +15,7 @@ namespace Teacher.MessageModel
         public string Password { get; set; }
 
         [JsonPropertyName("role")]
-        public string Role { get; set; } = "student"; // Default role for student
+        public string Role { get; set; } = "teacher"; // Default role for teacher
     }
 
     public class JoinClassMessage

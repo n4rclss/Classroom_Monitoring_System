@@ -4,7 +4,7 @@ using System.Windows.Forms;
 //using RDPCOMAPILib;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace Student
+namespace Teacher
 {
 
     public partial class Dashboard : Form

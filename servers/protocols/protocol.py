@@ -38,7 +38,7 @@ class ClassProtocol(LineReceiver):
             self.send_error(str(e))
 
     def handle_login(self, message):
-        if not self.db.authenticate(message.username, message.password):
+        if not self.db.authenticate(message.username, message.password, message.role):
             # Disconnect if authentication fails
             # logging.warning(f"Failed login attempt for user: {message.username}")
             # self.transport.loseConnection()

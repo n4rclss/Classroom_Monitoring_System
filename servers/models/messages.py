@@ -8,6 +8,7 @@ class LoginMessage(BaseMessage):
     type: Literal["login"] = "login"
     username: str = Field(min_length=1)
     password: str = Field(min_length=1)
+    role: str = Field(min_length=1, regex=r'^(student|teacher)$')
 
 class JoinClassMessage(BaseMessage):
     type: Literal["join_class"] = "join_class"

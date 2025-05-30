@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassRoomMonitoring", "Clas
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Student", "Student\Student.csproj", "{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Teacher", "Teacher\Teacher.csproj", "{05FF999E-42EE-4D02-AD70-2012BAD59AF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05FF999E-42EE-4D02-AD70-2012BAD59AF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05FF999E-42EE-4D02-AD70-2012BAD59AF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05FF999E-42EE-4D02-AD70-2012BAD59AF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05FF999E-42EE-4D02-AD70-2012BAD59AF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

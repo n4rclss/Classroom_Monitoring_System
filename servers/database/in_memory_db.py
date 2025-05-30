@@ -11,9 +11,9 @@ class ClassroomDatabase:
         self.active_sessions = {}
         self.chat_history = []
 
-    def authenticate(self, username, password):
+    def authenticate(self, username, password, role):
         user = self.users.get(username)
-        return user and user["password"] == password
+        return user and user["password"] == password and user["role"] == role
 
     def get_role(self, username):
         return self.users.get(username, {}).get("role")
