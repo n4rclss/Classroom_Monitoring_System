@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{8816C219-FE27-4676-83EE-94949D6CEA45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassRoomMonitoring", "ClassRoomMonitoring\ClassRoomMonitoring.csproj", "{8FEB138F-1F71-4C0D-87F1-A7807DC67001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Student", "Student\Student.csproj", "{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{8816C219-FE27-4676-83EE-94949D6CEA45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8816C219-FE27-4676-83EE-94949D6CEA45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8816C219-FE27-4676-83EE-94949D6CEA45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FEB138F-1F71-4C0D-87F1-A7807DC67001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FEB138F-1F71-4C0D-87F1-A7807DC67001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FEB138F-1F71-4C0D-87F1-A7807DC67001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FEB138F-1F71-4C0D-87F1-A7807DC67001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAE738D8-E97B-4650-B2C9-F3B49CD372BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

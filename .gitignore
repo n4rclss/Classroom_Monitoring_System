@@ -364,3 +364,9 @@ FodyWeavers.xsd
 
 .vscode/
 test/
+
+# Ignore all .log files in the servers/ directory (non-recursive)
+servers/*.log
+
+# Ignore all __pycache__ directories inside servers/, including subdirectories
+servers/**/__pycache__/
