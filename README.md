@@ -10,6 +10,8 @@
 + protocols: Core of handling login
 + services: Session_manager
 + utils: Parser.py (mapping message type to a specific models so that we can base on it to handle type of message later)
+- About client using C# (Teacher and Student):
++ Main logic is in NetworkManager.cs. 
 
 
 
