@@ -45,6 +45,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(87, 25);
             this.label1.TabIndex = 0;
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.label1.Text = "Room ID";
             // 
             // Room_ID_tb
@@ -54,6 +55,7 @@
             this.Room_ID_tb.Name = "Room_ID_tb";
             this.Room_ID_tb.Size = new System.Drawing.Size(117, 43);
             this.Room_ID_tb.TabIndex = 1;
+            this.Room_ID_tb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             // 
             // button1
             // 
@@ -65,6 +67,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(236, 61);
             this.button1.TabIndex = 2;
+            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.button1.Text = "Create";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -76,6 +79,7 @@
             this.refresh_btt.Name = "refresh_btt";
             this.refresh_btt.Size = new System.Drawing.Size(143, 56);
             this.refresh_btt.TabIndex = 4;
+            this.refresh_btt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.refresh_btt.Text = "Refresh user";
             this.refresh_btt.UseVisualStyleBackColor = true;
             this.refresh_btt.Click += new System.EventHandler(this.refresh_btt_Click);
@@ -87,6 +91,9 @@
             this.status_online_tb.Name = "status_online_tb";
             this.status_online_tb.Size = new System.Drawing.Size(468, 269);
             this.status_online_tb.TabIndex = 5;
+            this.status_online_tb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // label2
             // 
@@ -96,6 +103,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(153, 29);
             this.label2.TabIndex = 6;
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Text = "Online Users";
             // 
             // Send_message_to_all_btt
@@ -108,6 +116,7 @@
             this.Send_message_to_all_btt.Name = "Send_message_to_all_btt";
             this.Send_message_to_all_btt.Size = new System.Drawing.Size(236, 58);
             this.Send_message_to_all_btt.TabIndex = 7;
+            this.Send_message_to_all_btt.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.Send_message_to_all_btt.Text = "Send message to all";
             this.Send_message_to_all_btt.UseVisualStyleBackColor = true;
             this.Send_message_to_all_btt.Click += new System.EventHandler(this.Send_message_to_all_btt_Click);

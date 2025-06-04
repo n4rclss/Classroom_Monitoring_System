@@ -1,29 +1,28 @@
 import json
 from models.messages import ChatMessage
+from typing import Dict, Set
+
 class SessionManager:
-    """Manages active connections and room participants"""
     def __init__(self, db):
         self.db = db
-        self.connections = {}
-        self.room_participants = {}  # {room_id: set(usernames)}
+        self.connections: Dict[int, any] = {}
+        self.room_participants: Dict[str, Set[str]] = {} 
         
-    def get_connection(self, username):
-        """Retrieve active protocol instance for a user, if exists."""
-        return self.db.active_sessions.get(username, None)
+    def get_connection(self, username: str):
+        """Check if user has an active session in the database"""
+        return self.db.get_active_session(username)
 
     def register_connection(self, protocol):
         self.connections[id(protocol)] = protocol
-        print(id(protocol), ' connection registered')
 
-    def register_user(self, username, protocol):
-        self.db.active_sessions[username] = protocol
-        protocol.username = username  # Set username in protocol
+    def register_user(self, username: str, protocol):
+        self.db.add_active_session(username)
+        protocol.username = username
 
-    def remove_connection(self, username):
-        if username in self.db.active_sessions:
-            # Remove from all rooms
+    def remove_connection(self, username: str):
+        if self.db.get_active_session(username):
             self.leave_all_rooms(username)
-            del self.db.active_sessions[username]
+            self.db.remove_active_session(username)
 
     def join_room(self, username, room_id):
         """Add user to room participants tracking"""

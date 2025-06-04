@@ -41,6 +41,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(135, 36);
             this.label1.TabIndex = 0;
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.label1.Text = "Message";
             // 
             // Send_to_all_tb
@@ -50,6 +51,9 @@
             this.Send_to_all_tb.Name = "Send_to_all_tb";
             this.Send_to_all_tb.Size = new System.Drawing.Size(632, 241);
             this.Send_to_all_tb.TabIndex = 1;
+            this.Send_to_all_tb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // Send_to_all_btt
             // 
@@ -58,6 +62,7 @@
             this.Send_to_all_btt.Name = "Send_to_all_btt";
             this.Send_to_all_btt.Size = new System.Drawing.Size(157, 59);
             this.Send_to_all_btt.TabIndex = 2;
+            this.Send_to_all_btt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.Send_to_all_btt.Text = "Send";
             this.Send_to_all_btt.UseVisualStyleBackColor = true;
             this.Send_to_all_btt.Click += new System.EventHandler(this.Send_to_all_btt_Click);
