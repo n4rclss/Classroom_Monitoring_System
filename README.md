@@ -4,8 +4,8 @@
 - Open Classroom_Monitoring_System.sln, then select student/teacher to try
 - For credential of teacher and student, take a look at servers/databases/in_memory_db.py
 ### Comment:
-- We just working with servers directory, in there we will have:
-+ database: include in_memory_db.py (manage connection and room database)
+- We're just working with servers directory, in there we will have:
++ database: includes in_memory_db.py (manage connection and room database)
 + models: Used for getting attributes of the message from Teacher
 + protocols: Core of handling login
 + services: Session_manager
