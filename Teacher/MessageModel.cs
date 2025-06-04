@@ -6,6 +6,7 @@ namespace Teacher.MessageModel
     public class LoginMessage
     {
         [JsonPropertyName("type")]
+        // "login" might be the message server send back, hieu guess so, a little ambigious about Ly code there.
         public string Type { get; set; } = "login";
 
         [JsonPropertyName("username")]
@@ -18,14 +19,42 @@ namespace Teacher.MessageModel
         public string Role { get; set; } = "teacher"; // Default role for teacher
     }
 
-    public class JoinClassMessage
+    public class Send_message_to_all
     {
         [JsonPropertyName("type")]
-        public string Type { get; set; } = "join_class";
+        public string Type { get; set; } = "send_message_to_all";
 
-        [JsonPropertyName("class_id")]
-        public string ClassId { get; set; }
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("message_to_all")]
+        public string message_to_all { get; set; }
     }
+
+
+
+    public class Create_room
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "create_room";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("teacher")]
+        public string teacher { get; set; }
+    }
+
+    public class Refresh
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "refresh";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+    }
+
 
     public class ChatMessage
     {

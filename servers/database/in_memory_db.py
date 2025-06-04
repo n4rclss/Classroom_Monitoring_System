@@ -4,8 +4,9 @@ class ClassroomDatabase:
     """In-memory database for user and room management"""
     def __init__(self):
         self.users = {
-            "teacher1": {"password": "teach123", "role": "teacher"},
-            "student1": {"password": "stu456", "role": "student"}
+            "teacher": {"password": "t", "role": "teacher"},
+            "stu1": {"password": "s", "role": "student"},
+            "stu2": {"password": "ss", "role": "student"}
         }
         self.rooms = {}
         self.active_sessions = {}
@@ -19,22 +20,23 @@ class ClassroomDatabase:
         return self.users.get(username, {}).get("role")
 
     def create_room(self, room_id, teacher):
+        print('------',room_id, teacher)
         self.rooms[room_id] = {
             "teacher": teacher,
-            "students": set(),
+            "students": {},
             "chat_history": []
         }
+        return (f"Room {room_id} created by {teacher} successfully!")
 
-    def join_room(self, username, room_id):
-        role = self.get_role(username)
-        if not role or room_id not in self.rooms:
-            return False
+    def join_room(self, username, room_id, student_name, mssv):
+        if room_id not in self.rooms:
+            return "Room does not exist!"
         
-        if role == "teacher":
-            self.rooms[room_id]["teacher"] = username
-        else:
-            self.rooms[room_id]["students"].add(username)
-        return True
+        self.rooms[room_id]["students"][username] = {
+            "student_name": student_name,
+            "mssv": mssv
+        }
+        return ("Joined room successfully!")
 
     def add_chat_message(self, message: dict):
         """Store chat message with validation"""

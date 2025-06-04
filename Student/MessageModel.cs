@@ -18,13 +18,23 @@ namespace Teacher.MessageModel
         public string Role { get; set; } = "student"; // Default role for student
     }
 
-    public class JoinClassMessage
+
+    public class Join_room
     {
         [JsonPropertyName("type")]
-        public string Type { get; set; } = "join_class";
+        public string Type { get; set; } = "join_room";
 
-        [JsonPropertyName("class_id")]
-        public string ClassId { get; set; }
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("student_name")]
+        public string student_name { get; set; }
+
+        [JsonPropertyName("mssv")]
+        public string mssv { get; set; }
+
+        [JsonPropertyName("username")]
+        public string Username { get; set; }
     }
 
     public class ChatMessage

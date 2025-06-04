@@ -6,6 +6,10 @@ using System.Windows.Forms;
 
 namespace Teacher
 {
+    public static class Globals
+    {
+        public static string UsernameGlobal;
+    }
     internal static class Program
     {
         /// <summary>  

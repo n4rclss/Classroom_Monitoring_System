@@ -20,8 +20,8 @@ namespace Teacher.NetworkManager
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
-        private const string DefaultServerAddress = "192.168.116.128";
-        private const int DefaultServerPort = 5000;
+        private const string DefaultServerAddress = "127.0.0.1";
+        private const int DefaultServerPort = 8000;
 
         public event EventHandler Disconnected;
         public bool IsConnected => _isConnected;

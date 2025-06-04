@@ -6,11 +6,15 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Teacher.NetworkManager
 {
+
     public class NetworkManager : IDisposable
     {
+        public Action<string> OnMessageReceived;
+
         private TcpClient _client;
         private NetworkStream _stream;
         private StreamReader _reader;
@@ -20,11 +24,16 @@ namespace Teacher.NetworkManager
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
-        private const string DefaultServerAddress = "192.168.116.128";
-        private const int DefaultServerPort = 5000;
+        private const string DefaultServerAddress = "127.0.0.1";
+        private const int DefaultServerPort = 8000;
 
         public event EventHandler Disconnected;
         public bool IsConnected => _isConnected;
+
+
+
+
+
 
         public async Task ConnectAsync(string host = DefaultServerAddress, int port = DefaultServerPort)
         {
@@ -66,6 +75,58 @@ namespace Teacher.NetworkManager
                 throw new InvalidOperationException("Connection lost while sending data.", ex);
             }
         }
+
+        public async Task ListeningPassivelyForever()
+        {
+            if (!_isConnected)
+                throw new InvalidOperationException("Not connected to server.");
+
+            try
+            {
+                MessageBox.Show("Started passive listening loop.");
+
+                while (!_cts.Token.IsCancellationRequested)
+                {
+                    string response = await _reader.ReadLineAsync();
+
+                    if (response == null)
+                    {
+                        MessageBox.Show("Server closed the connection.");
+                        break;
+                    }
+                    
+                    try
+                    {
+                        var doc = JsonDocument.Parse(response);
+                        string type_message = doc.RootElement.GetProperty("type").GetString();
+                        if (type_message == "send_message_to_all")
+                        {
+                            var content = doc.RootElement.GetProperty("content").GetString();
+                            var sender = doc.RootElement.GetProperty("sender").GetString();
+                            string formatted = $"{sender} says: {content}";
+                            MessageBox.Show(formatted);
+     
+                            OnMessageReceived?.Invoke(formatted);
+                        }
+
+                    }
+                    catch (Exception parseEx)
+                    {
+                        Console.WriteLine(parseEx.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Passive Listener Error] {ex.Message}");
+                await HandleDisconnectAsync(ex);
+            }
+            finally
+            {
+                Console.WriteLine("Passive listening loop exited.");
+            }
+        }
+
         public async Task<string> ProcessSendMessage<T>(T data)
         {
             if (!_isConnected)

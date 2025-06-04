@@ -1,10 +1,13 @@
-from models.messages import LoginMessage, JoinClassMessage, ChatMessage
+from models.messages import RefreshMessage,SendMessageToAll, LoginMessage, JoinRoomMessage, ChatMessage, CreateRoomMessage 
 import json
 
 MESSAGE_TYPES = {
     "login": LoginMessage,
-    "join_class": JoinClassMessage,
-    "chat_message": ChatMessage
+    "join_room": JoinRoomMessage,
+    "chat_message": ChatMessage,
+    "create_room": CreateRoomMessage,
+    "refresh" : RefreshMessage,
+    "send_message_to_all": SendMessageToAll  # Assuming this is the correct model
 }
 
 def parse_message(raw_data: bytes):
@@ -17,7 +20,7 @@ def parse_message(raw_data: bytes):
         
         if not message_type or message_type not in MESSAGE_TYPES:
             raise ValueError("Invalid message type")
-            
+ 
         model = MESSAGE_TYPES[message_type]
         return model.model_validate_json(json_data)
         

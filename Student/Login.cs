@@ -4,6 +4,8 @@ using System.Windows.Forms;
 
 namespace Teacher
 {
+
+
     public partial class Login : Form
     {
         private NetworkManager.NetworkManager _netManager;
@@ -39,6 +41,7 @@ namespace Teacher
 
                 if (loginResult.Result)
                 {
+                    Globals.UsernameGlobal = username;
                     MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     // Proceed to the next form or functionality  
                     var dashboard = new Dashboard(_netManager);

@@ -3,16 +3,37 @@ from typing import Literal
 
 class BaseMessage(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
+    
+class RefreshMessage(BaseMessage):
+    type: Literal["refresh"] = "refresh"
+    room_id: str = Field(min_length=1)
+
+class SendMessageToAll(BaseMessage):
+    type: Literal["send_message_to_all"] = "send_message_to_all"
+    room_id: str = Field(min_length=1)
+    message_to_all: str = Field(min_length=1)
+
 
 class LoginMessage(BaseMessage):
     type: Literal["login"] = "login"
     username: str = Field(min_length=1)
     password: str = Field(min_length=1)
-    role: str = Field(min_length=1, regex=r'^(student|teacher)$')
+    role: str = Field(min_length=1, pattern=r"^(teacher|student)$")
 
-class JoinClassMessage(BaseMessage):
-    type: Literal["join_class"] = "join_class"
-    class_id: str = Field(min_length=1)
+class JoinRoomMessage(BaseMessage):
+    type: Literal["join_room"] = "join_room"
+    room_id: str = Field(min_length=1)
+    username: str = Field(min_length=1)
+    mssv: str = Field(min_length=1)
+    student_name: str = Field(min_length=1)
+    
+class CreateRoomMessage(BaseMessage):
+    type: Literal["create_room"] = "create_room"
+    room_id: str = Field(min_length=1)
+    teacher: str = Field(min_length=1)
+    
+
+    
 
 class ChatMessage(BaseMessage):
     type: Literal["chat_message"] = "chat_message"
