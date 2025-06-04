@@ -22,47 +22,103 @@ namespace Teacher
 
         public async Task<bool> Send_message_to_all()
         {
+            // *** ADD CHECK HERE ***
+            if (string.IsNullOrEmpty(Globals.roomID))
+            {
+                MessageBox.Show("No active room selected. Please create a room in the dashboard first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false; // Prevent sending message
+            }
+            // *** END CHECK ***
+
+            if (string.IsNullOrWhiteSpace(Send_to_all_tb.Text))
+            {
+                MessageBox.Show("Message cannot be empty.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false; // Prevent sending empty message
+            }
+
             try
             {
-                var create_room_message = new Teacher.MessageModel.Send_message_to_all
+                var broadcast_message = new Teacher.MessageModel.Send_message_to_all // Renamed variable for clarity
                 {
-                    room_id = Globals.roomID,
+                    room_id = Globals.roomID, // Use the checked Globals.roomID
                     message_to_all = Send_to_all_tb.Text,
                 };
 
                 // Check if netManager is connected
                 if (!_netManager.IsConnected)
                 {
-                    await _netManager.ConnectAsync();
-                    MessageBox.Show("Might be something wrong there?");
+                    // Consider if reconnecting here is the best strategy, maybe just show error?
+                    // For now, keep original logic but add logging/message
+                    MessageBox.Show("Network connection lost. Attempting to reconnect...", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    try
+                    {
+                        await _netManager.ConnectAsync();
+                        if (!_netManager.IsConnected)
+                        {
+                            MessageBox.Show("Failed to reconnect. Please check your connection and try again.", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
+                    }
+                    catch (Exception reconEx)
+                    {
+                        MessageBox.Show($"Failed to reconnect: {reconEx.Message}", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
                 }
 
-                string responseData = await _netManager.ProcessSendMessage(create_room_message);
+                string responseData = await _netManager.ProcessSendMessage(broadcast_message); // Use renamed variable
                 if (string.IsNullOrEmpty(responseData))
                 {
+                    MessageBox.Show("No response received from the server.", "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false; // No response from server
                 }
-                JsonDocument doc = JsonDocument.Parse(responseData);
-                var status = doc.RootElement.GetProperty("status").GetString();
-                var message = doc.RootElement.GetProperty("message").GetString();
-                /* Handle message types */
-                switch (status)
+
+                // Safely parse JSON
+                try
                 {
-                    case "success":
-                        {
-                            MessageBox.Show(message);
-                            return true;
-                        }
-                    case "error":
-                        return false;
-                    default:
-                        // Handle unknown message type
-                        return false;
+                    JsonDocument doc = JsonDocument.Parse(responseData);
+                    var status = doc.RootElement.GetProperty("status").GetString();
+                    var message = doc.RootElement.GetProperty("message").GetString();
+
+                    switch (status)
+                    {
+                        case "success":
+                            {
+                                MessageBox.Show(message, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                // Optionally close the form after successful send?
+                                // this.Close();
+                                return true;
+                            }
+                        case "error":
+                            MessageBox.Show($"Server error: {message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        default:
+                            MessageBox.Show($"Unknown server response status: {status}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                    }
                 }
+                catch (JsonException jsonEx)
+                {
+                    MessageBox.Show($"Failed to parse server response: {jsonEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Console.WriteLine($"JSON Parsing Error: {jsonEx}");
+                    return false;
+                }
+                catch (KeyNotFoundException keyEx)
+                {
+                    MessageBox.Show($"Server response missing expected field: {keyEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Console.WriteLine($"JSON Key Error: {keyEx}");
+                    return false;
+                }
+            }
+            catch (InvalidOperationException opEx) // Catch specific network errors if possible
+            {
+                MessageBox.Show($"Network operation failed: {opEx.Message}", "Network Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine($"Network Error: {opEx}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine($"Error in Send_message_to_all: {ex}");
             }
             return false; // Return false in case of any exception
         }
