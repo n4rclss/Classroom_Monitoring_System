@@ -8,32 +8,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Teacher.NetworkManager
+namespace Student.NetworkManager 
 {
-
     public class NetworkManager : IDisposable
     {
         public Action<string> OnMessageReceived;
 
         private TcpClient _client;
         private NetworkStream _stream;
-        private StreamReader _reader;
+        private BinaryReader _reader; // Changed from StreamReader
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private Task _listeningTask;
         private volatile bool _isConnected;
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
+        // Updated to use load balancer address and port
         private const string DefaultServerAddress = "127.0.0.1";
         private const int DefaultServerPort = 8000;
 
         public event EventHandler Disconnected;
         public bool IsConnected => _isConnected;
-
-
-
-
-
 
         public async Task ConnectAsync(string host = DefaultServerAddress, int port = DefaultServerPort)
         {
@@ -42,10 +37,10 @@ namespace Teacher.NetworkManager
             {
                 await _client.ConnectAsync(host, port).ConfigureAwait(false);
                 _stream = _client.GetStream();
-                // Use leaveOpen: true as if the _reader is disposed, the _stream still exists.
-                _reader = new StreamReader(_stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+                // Use BinaryReader for raw data handling
+                _reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
                 _isConnected = true;
-                Console.WriteLine("Successfully connected to server.");
+                Console.WriteLine($"Successfully connected to load balancer at {host}:{port}");
             }
             catch (Exception ex)
             {
@@ -55,19 +50,22 @@ namespace Teacher.NetworkManager
                 throw new InvalidOperationException($"Failed to connect to {host}:{port}", ex);
             }
         }
+
         private async Task SendAsync<T>(T data)
         {
             if (!_isConnected)
-                throw new InvalidOperationException("Not connected to server.");
+                throw new InvalidOperationException("Not connected to load balancer.");
 
             try
             {
                 var json = JsonSerializer.Serialize(data);
-                // Line-based protocols
-                byte[] buffer = Encoding.UTF8.GetBytes(json + "\n");
-                // Use ConfigureAwait(false)
-                await _stream.WriteAsync(buffer, 0, buffer.Length, _cts.Token).ConfigureAwait(false);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                
+                // Send the raw JSON data without length prefix or newline
+                await _stream.WriteAsync(jsonBytes, 0, jsonBytes.Length, _cts.Token).ConfigureAwait(false);
                 await _stream.FlushAsync(_cts.Token).ConfigureAwait(false);
+                
+                Console.WriteLine($"Sent: {json}");
             }
             catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException || ex is OperationCanceledException)
             {
@@ -76,6 +74,8 @@ namespace Teacher.NetworkManager
             }
         }
 
+        // This passive listening might need adjustments depending on how the server sends non-login messages
+        // For now, focusing on the request-response pattern for login
         public async Task ListeningPassivelyForever()
         {
             if (!_isConnected)
@@ -83,38 +83,51 @@ namespace Teacher.NetworkManager
 
             try
             {
-                MessageBox.Show("Started passive listening loop.");
+                Console.WriteLine("Started passive listening loop.");
 
                 while (!_cts.Token.IsCancellationRequested)
                 {
-                    string response = await _reader.ReadLineAsync();
+                    // Read raw bytes, assuming server sends raw JSON for other messages too
+                    byte[] buffer = new byte[4096];
+                    int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length, _cts.Token).ConfigureAwait(false);
 
-                    if (response == null)
+                    if (bytesRead == 0)
                     {
-                        MessageBox.Show("Server closed the connection.");
+                        Console.WriteLine("Server closed the connection.");
                         break;
                     }
+
+                    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Console.WriteLine($"Passively received: {response}");
                     
                     try
                     {
                         var doc = JsonDocument.Parse(response);
                         string type_message = doc.RootElement.GetProperty("type").GetString();
-                        if (type_message == "send_message_to_all")
+                        if (type_message == "send_message_to_all") // Example handling
                         {
                             var content = doc.RootElement.GetProperty("content").GetString();
                             var sender = doc.RootElement.GetProperty("sender").GetString();
                             string formatted = $"{sender} says: {content}";
-                            MessageBox.Show(formatted);
-     
+                            Console.WriteLine(formatted); // Log instead of MessageBox
                             OnMessageReceived?.Invoke(formatted);
                         }
-
                     }
                     catch (Exception parseEx)
                     {
-                        Console.WriteLine(parseEx.Message);
+                        Console.WriteLine($"Error parsing passive message: {parseEx.Message}");
                     }
                 }
+            }
+            catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException)
+            {
+                 Console.WriteLine($"Passive listener stopped due to connection error: {ex.Message}"); 
+                 await HandleDisconnectAsync(ex);
+            }
+            catch (OperationCanceledException)
+            {
+                 Console.WriteLine("Passive listener cancelled."); 
+                 await HandleDisconnectAsync(null);
             }
             catch (Exception ex)
             {
@@ -130,7 +143,7 @@ namespace Teacher.NetworkManager
         public async Task<string> ProcessSendMessage<T>(T data)
         {
             if (!_isConnected)
-                throw new InvalidOperationException("Not connected to server.");
+                throw new InvalidOperationException("Not connected to load balancer.");
 
             string response = string.Empty;
             try
@@ -147,13 +160,27 @@ namespace Teacher.NetworkManager
 
         private async Task<string> ListenResponsesAsync(CancellationToken token)
         {
-            Console.WriteLine("Listener task started.");
-            string line = "";
+            Console.WriteLine("Waiting for response from load balancer...");
+            string response = "";
+            
             try
             {
                 if (!token.IsCancellationRequested)
                 {
-                    line = await _reader.ReadLineAsync().ConfigureAwait(false);
+                    // Read response data (up to 4KB)
+                    byte[] buffer = new byte[4096];
+                    int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
+                    
+                    if (bytesRead > 0)
+                    {
+                        response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        Console.WriteLine($"Received response: {response}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Received empty response or connection closed.");
+                        await HandleDisconnectAsync(null); // Treat as disconnect
+                    }
                 }
             }
             catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException)
@@ -171,12 +198,10 @@ namespace Teacher.NetworkManager
                 Console.WriteLine($"Unexpected error in listener task: {ex.Message}"); 
                 await HandleDisconnectAsync(ex); 
             }
-            finally
-            {
-                Console.WriteLine("Listener task finished.");
-            }
-            return line; 
+            
+            return response; 
         }
+
         private async Task HandleDisconnectAsync(Exception reason)
         {
             if (!_isConnected) return; 
@@ -191,11 +216,10 @@ namespace Teacher.NetworkManager
             // Cancel any ongoing operations (like SendAsync)
             try { _cts?.Cancel(); } catch { }
             Task.Run(() => Disconnected?.Invoke(this, EventArgs.Empty));
-
         }
+
         private void CleanupResources()
         {
-
             _reader?.Dispose();
             _stream?.Dispose();
             _client?.Close(); 
@@ -206,6 +230,7 @@ namespace Teacher.NetworkManager
             _client = null;
             _cts = null;
         }
+
         public void Dispose()
         {
             lock (_connectLock) 
@@ -223,10 +248,8 @@ namespace Teacher.NetworkManager
 
                 // Clean up resources
                 CleanupResources();
-
             }
             GC.SuppressFinalize(this);
         }
     }
 }
-

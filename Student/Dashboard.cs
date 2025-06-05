@@ -2,11 +2,9 @@
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Student;
 
-//using RDPCOMAPILib;
-//using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
-namespace Teacher
+namespace Student
 {
 
     public partial class Dashboard : Form
@@ -33,60 +31,6 @@ namespace Teacher
             {
                 logBox_tb.AppendText(message + Environment.NewLine);
             }
-        }
-
-        public async Task<bool> Join_room()
-        {
-            try
-            {
-                var create_room_message = new Teacher.MessageModel.Join_room
-                {
-                    room_id = roomidBox.Text,
-                    mssv = mssvBox.Text,
-                    student_name = usernameBox.Text,
-                    Username = Globals.UsernameGlobal,
-                };
-
-                // Check if netManager is connected
-                if (!_netManager.IsConnected)
-                {
-                    await _netManager.ConnectAsync();
-                    MessageBox.Show("Might be something wrong there?");
-                }
-
-                string responseData = await _netManager.ProcessSendMessage(create_room_message);
-                if (string.IsNullOrEmpty(responseData))
-                {
-                    return false; // No response from server
-                }
-                JsonDocument doc = JsonDocument.Parse(responseData);
-                var status = doc.RootElement.GetProperty("status").GetString();
-                var message = doc.RootElement.GetProperty("message").GetString();
-            
-                /* Handle message types */
-                switch (status)
-                {
-                    case "success":
-                        {
-
-                            MessageBox.Show(message);
-                            return true;
-                        }
-                    case "error":
-                        {
-                            MessageBox.Show(message);
-                            return false;
-                        }
-                    default:
-                        // Handle unknown message type
-                        return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-            return false; // Return false in case of any exception
         }
 
         public async Task<bool> Listen_passive()
@@ -117,16 +61,7 @@ namespace Teacher
         private async void ConnectBtn_Click(object sender, EventArgs e)
         {
 
-            try
-            {
-                if (await Join_room())
-                    await Listen_passive();
-
-            }
-            catch (Exception ex)
-            {
-                logBox_tb.AppendText("Error: " + ex.Message + "\r\n");
-            }
+            
         }
         private void DisconnectBtn_Click(object sender, EventArgs e)
         {

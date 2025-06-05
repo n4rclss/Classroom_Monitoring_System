@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Teacher.MessageModel
+namespace Student.MessageModel // Keep namespace for consistency
 {
     public class LoginMessage
     {
@@ -18,45 +18,13 @@ namespace Teacher.MessageModel
         public string Role { get; set; } = "student"; // Default role for student
     }
 
-
-    public class Join_room
+    // Response message structure from server
+    public class LoginResponse
     {
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = "join_room";
-
-        [JsonPropertyName("room_id")]
-        public string room_id { get; set; }
-
-        [JsonPropertyName("student_name")]
-        public string student_name { get; set; }
-
-        [JsonPropertyName("mssv")]
-        public string mssv { get; set; }
-
-        [JsonPropertyName("username")]
-        public string Username { get; set; }
-    }
-
-    public class ChatMessage
-    {
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = "chat_message";
-
-        [JsonPropertyName("sender_id")]
-        public string SenderId { get; set; }
-
-        [JsonPropertyName("receiver_id")]
-        public string ReceiverId { get; set; }
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
 
         [JsonPropertyName("message")]
         public string Message { get; set; }
-
-        [JsonPropertyName("timestamp")]
-        public string Timestamp { get; set; }
-
-        public bool IsValidTimestamp()
-        {
-            return Regex.IsMatch(Timestamp, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$");
-        }
     }
 }

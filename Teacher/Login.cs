@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.Json;
 
 namespace Teacher
 {
-
-    public static class Globals
-    {
-        public static string UsernameGlobal,roomID;
-    }
-
-
     public partial class Login : Form
     {
         private NetworkManager.NetworkManager _netManager;
@@ -21,15 +15,8 @@ namespace Teacher
             InitializeComponent();
             _netManager = netManager;
             _authService = new AuthService.AuthService(netManager);
-            //this.FormClosing += Login_FormClosing;
         }
 
-        //private void Login_FormClosing(object sender, FormClosingEventArgs e)
-        //{
-        //    MessageBox.Show("Exiting...");
-        //    Application.Exit();
-        //
-        //}
         private void Btn_login_Click(object sender, EventArgs e)
         {
             string username = textBox_username.Text;
@@ -41,13 +28,16 @@ namespace Teacher
             }
             try
             {
+                // Show loading indicator or disable login button
+                Btn_login.Enabled = false;
+                Btn_login.Text = "Logging in...";
+                
                 var loginResult = _authService.Login(username, password);
                 loginResult.Wait();
 
                 if (loginResult.Result)
                 {
                     Globals.UsernameGlobal = username;
-
                     MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     // Proceed to the next form or functionality  
                     var dashboard = new TeacherDashboard(_netManager);
@@ -63,6 +53,16 @@ namespace Teacher
             {
                 MessageBox.Show($"An error occurred during login: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                // Reset button state
+                Btn_login.Enabled = true;
+                Btn_login.Text = "Login";
+            }
         }
+    }
+    public static class Globals
+    {
+        public static string UsernameGlobal, roomID;
     }
 }

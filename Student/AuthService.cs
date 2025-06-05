@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Teacher;
+using Student; 
 using System.Text.Json;
 using System.Windows.Forms;
-using System.Linq.Expressions;
 using System;
 
-namespace Teacher.AuthService
+namespace Student.AuthService // Keep namespace for consistency
 {
     public class AuthService
     {
@@ -15,14 +14,17 @@ namespace Teacher.AuthService
         {
             _netManager = netManager;
         }
+
         public async Task<bool> Login(string username, string password)
         {
             try
             {
-                var loginMessage = new Teacher.MessageModel.LoginMessage
+                var loginMessage = new MessageModel.LoginMessage
                 {
                     Username = username,
-                    Password = password
+                    Password = password,
+                    Type = "login",
+                    Role = "student" // Explicitly set role for student client
                 };
 
                 // Check if netManager is connected
@@ -34,26 +36,32 @@ namespace Teacher.AuthService
                 string responseData = await _netManager.ProcessSendMessage(loginMessage).ConfigureAwait(false);
                 if (string.IsNullOrEmpty(responseData))
                 {
+                    Console.WriteLine("No response received from server");
                     return false; // No response from server
                 }
-                JsonDocument doc = JsonDocument.Parse(responseData);
-                var status = doc.RootElement.GetProperty("status").GetString();
-                var message = doc.RootElement.GetProperty("message").GetString();
-                /* Handle message types */
-                switch (status)
+
+                try
                 {
-                    case "success":
-                        return true;
-                    case "error":
-                        return false;
-                    default:
-                        // Handle unknown message type
-                        return false;
+                    // Deserialize using the LoginResponse model
+                    var response = JsonSerializer.Deserialize<MessageModel.LoginResponse>(responseData);
+                    Console.WriteLine($"Login response: {response.Status} - {response.Message}");
+                    
+                    return response.Status == "success";
+                }
+                catch (JsonException ex)
+                {
+                    Console.WriteLine($"Error parsing response: {ex.Message}");
+                    Console.WriteLine($"Raw response: {responseData}");
+                    return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Console.WriteLine($"Login error: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
             return false; // Return false in case of any exception
         }

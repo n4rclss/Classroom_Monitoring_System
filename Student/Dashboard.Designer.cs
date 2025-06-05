@@ -1,4 +1,4 @@
-﻿namespace Teacher
+﻿namespace Student
 {
     partial class Dashboard
     {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Student;
 
-namespace Teacher
+namespace Student
 {
-
-
     public partial class Login : Form
     {
         private NetworkManager.NetworkManager _netManager;
@@ -16,15 +15,8 @@ namespace Teacher
             InitializeComponent();
             _netManager = netManager;
             _authService = new AuthService.AuthService(netManager);
-            //this.FormClosing += Login_FormClosing;
         }
 
-        //private void Login_FormClosing(object sender, FormClosingEventArgs e)
-        //{
-        //    MessageBox.Show("Exiting...");
-        //    Application.Exit();
-        //
-        //}
         private void Btn_login_Click(object sender, EventArgs e)
         {
             string username = textBox_username.Text;
@@ -36,15 +28,20 @@ namespace Teacher
             }
             try
             {
+                // Show loading indicator or disable login button
+                Btn_login.Enabled = false;
+                Btn_login.Text = "Logging in...";
+
                 var loginResult = _authService.Login(username, password);
-                loginResult.Wait();
+                loginResult.Wait(); // Consider using async/await properly if UI hangs
 
                 if (loginResult.Result)
                 {
-                    Globals.UsernameGlobal = username;
+                    Globals.UsernameGlobal = username; // Store username if needed globally
                     MessageBox.Show("Login successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    // Proceed to the next form or functionality  
-                    var dashboard = new Dashboard(_netManager);
+                    
+                    // Proceed to the Dashboard form
+                    var dashboard = new Dashboard(_netManager); // Pass the NetworkManager instance
                     dashboard.Show();
                     this.Hide();
                 }
@@ -55,7 +52,19 @@ namespace Teacher
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred during login: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Provide more specific error message if possible
+                string errorMsg = $"An error occurred during login: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    errorMsg += $"\nInner Exception: {ex.InnerException.Message}";
+                }
+                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Reset button state
+                Btn_login.Enabled = true;
+                Btn_login.Text = "Login";
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Teacher
+﻿namespace Student
 {
     partial class Login
     {
@@ -43,6 +43,8 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(70, 16);
             this.label1.TabIndex = 0;
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.Text = "Username";
             // 
             // label2
@@ -53,6 +55,8 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 16);
             this.label2.TabIndex = 1;
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Text = "Password";
             // 
             // textBox_username
@@ -63,6 +67,8 @@
             this.textBox_username.Name = "textBox_username";
             this.textBox_username.Size = new System.Drawing.Size(455, 22);
             this.textBox_username.TabIndex = 2;
+            this.textBox_username.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // textBox_password
             // 
@@ -72,6 +78,8 @@
             this.textBox_password.Name = "textBox_password";
             this.textBox_password.Size = new System.Drawing.Size(455, 22);
             this.textBox_password.TabIndex = 3;
+            this.textBox_password.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // Btn_login
             // 
@@ -80,6 +88,7 @@
             this.Btn_login.Name = "Btn_login";
             this.Btn_login.Size = new System.Drawing.Size(98, 44);
             this.Btn_login.TabIndex = 4;
+            this.Btn_login.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.Btn_login.Text = "Login";
             this.Btn_login.UseVisualStyleBackColor = true;
             this.Btn_login.Click += new System.EventHandler(this.Btn_login_Click);

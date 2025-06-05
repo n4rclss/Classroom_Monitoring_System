@@ -13,13 +13,14 @@ namespace Teacher.NetworkManager
     {
         private TcpClient _client;
         private NetworkStream _stream;
-        private StreamReader _reader;
+        private BinaryReader _reader;
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private Task _listeningTask;
         private volatile bool _isConnected;
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
+        // Updated to use load balancer address and port
         private const string DefaultServerAddress = "127.0.0.1";
         private const int DefaultServerPort = 8000;
 
@@ -33,10 +34,10 @@ namespace Teacher.NetworkManager
             {
                 await _client.ConnectAsync(host, port).ConfigureAwait(false);
                 _stream = _client.GetStream();
-                // Use leaveOpen: true as if the _reader is disposed, the _stream still exists.
-                _reader = new StreamReader(_stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+                // Use BinaryReader instead of StreamReader for length-prefixed protocol
+                _reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
                 _isConnected = true;
-                Console.WriteLine("Successfully connected to server.");
+                Console.WriteLine($"Successfully connected to load balancer at {host}:{port}");
             }
             catch (Exception ex)
             {
@@ -46,19 +47,23 @@ namespace Teacher.NetworkManager
                 throw new InvalidOperationException($"Failed to connect to {host}:{port}", ex);
             }
         }
+
         private async Task SendAsync<T>(T data)
         {
             if (!_isConnected)
-                throw new InvalidOperationException("Not connected to server.");
+                throw new InvalidOperationException("Not connected to load balancer.");
 
             try
             {
                 var json = JsonSerializer.Serialize(data);
-                // Line-based protocols
-                byte[] buffer = Encoding.UTF8.GetBytes(json + "\n");
-                // Use ConfigureAwait(false)
-                await _stream.WriteAsync(buffer, 0, buffer.Length, _cts.Token).ConfigureAwait(false);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                
+                // Send the raw JSON data without length prefix
+                // The load balancer will handle the length prefixing when forwarding to servers
+                await _stream.WriteAsync(jsonBytes, 0, jsonBytes.Length, _cts.Token).ConfigureAwait(false);
                 await _stream.FlushAsync(_cts.Token).ConfigureAwait(false);
+                
+                Console.WriteLine($"Sent: {json}");
             }
             catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException || ex is OperationCanceledException)
             {
@@ -66,10 +71,11 @@ namespace Teacher.NetworkManager
                 throw new InvalidOperationException("Connection lost while sending data.", ex);
             }
         }
+
         public async Task<string> ProcessSendMessage<T>(T data)
         {
             if (!_isConnected)
-                throw new InvalidOperationException("Not connected to server.");
+                throw new InvalidOperationException("Not connected to load balancer.");
 
             string response = string.Empty;
             try
@@ -86,13 +92,22 @@ namespace Teacher.NetworkManager
 
         private async Task<string> ListenResponsesAsync(CancellationToken token)
         {
-            Console.WriteLine("Listener task started.");
-            string line = "";
+            Console.WriteLine("Waiting for response from load balancer...");
+            string response = "";
+            
             try
             {
                 if (!token.IsCancellationRequested)
                 {
-                    line = await _reader.ReadLineAsync().ConfigureAwait(false);
+                    // Read response data (up to 4KB)
+                    byte[] buffer = new byte[4096];
+                    int bytesRead = await _stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
+                    
+                    if (bytesRead > 0)
+                    {
+                        response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                        Console.WriteLine($"Received response: {response}");
+                    }
                 }
             }
             catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException)
@@ -110,31 +125,33 @@ namespace Teacher.NetworkManager
                 Console.WriteLine($"Unexpected error in listener task: {ex.Message}"); 
                 await HandleDisconnectAsync(ex); 
             }
-            finally
-            {
-                Console.WriteLine("Listener task finished.");
-            }
-            return line; 
+            
+            return response; 
         }
+
         private async Task HandleDisconnectAsync(Exception reason)
         {
-            if (!_isConnected) return; 
+            if (!_isConnected) return;
 
-            lock (_connectLock) 
+            lock (_connectLock)
             {
-                if (!_isConnected) return; 
+                if (!_isConnected) return;
                 _isConnected = false;
-                Console.WriteLine("Handling disconnection..."); 
+                Console.WriteLine("Handling disconnection...");
             }
 
             // Cancel any ongoing operations (like SendAsync)
             try { _cts?.Cancel(); } catch { }
-            Task.Run(() => Disconnected?.Invoke(this, EventArgs.Empty));
 
+            // Await the invocation of the Disconnected event to ensure proper handling
+            if (Disconnected != null)
+            {
+                await Task.Run(() => Disconnected.Invoke(this, EventArgs.Empty));
+            }
         }
+
         private void CleanupResources()
         {
-
             _reader?.Dispose();
             _stream?.Dispose();
             _client?.Close(); 
@@ -145,6 +162,7 @@ namespace Teacher.NetworkManager
             _client = null;
             _cts = null;
         }
+
         public void Dispose()
         {
             lock (_connectLock) 
@@ -162,10 +180,8 @@ namespace Teacher.NetworkManager
 
                 // Clean up resources
                 CleanupResources();
-
             }
             GC.SuppressFinalize(this);
         }
     }
 }
-
