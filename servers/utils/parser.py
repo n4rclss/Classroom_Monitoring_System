@@ -1,4 +1,4 @@
-from servers.models.packets import *
+from .packets import *
 import json
 
 MESSAGE_TYPES = {
