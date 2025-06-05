@@ -145,8 +145,6 @@ async def handle_client_connection(client_reader, client_writer):
             try:
                 # Get the next index from the GLOBAL cycle
                 server_index = next(round_robin_pool)
-                # Ensure the index is still considered healthy (in case periodic checks were added later)
-                # For now, we rely on the initial check and the on-demand check.
                 if server_index not in healthy_backend_indices:
                      print(f"[!] Server index {server_index} from cycle is no longer marked healthy. Skipping.")
                      continue # Try the next one in the cycle
@@ -164,7 +162,6 @@ async def handle_client_connection(client_reader, client_writer):
             host, port = potential_backend
 
             # Perform on-demand check
-            # print(f"[*] Attempting on-demand health check for backend {host}:{port} (Attempt {attempts}/{max_attempts})")
             is_healthy_now = await check_backend_health(host, port, HEALTH_CHECK_TIMEOUT)
 
             if is_healthy_now:
@@ -173,9 +170,6 @@ async def handle_client_connection(client_reader, client_writer):
                 break # Found a healthy server
             else:
                 print(f"[!] Backend {host}:{port} failed on-demand health check.")
-                # Note: We don't remove from healthy_backend_indices here in this version,
-                # relying on the next cycle + on-demand check to skip it.
-                # A version with periodic checks would update healthy_backend_indices.
 
         if not selected_backend_server:
             print(f"[!] No backend servers passed on-demand health check after {max_attempts} attempts for client {client_addr}. Closing connection.")
