@@ -25,8 +25,19 @@ class PacketJoinRoom(PacketBase):
     username: str = Field(min_length=1)
     mssv: str = Field(min_length=1)
     student_name: str = Field(min_length=1)
+
+class PacketNotify(PacketBase):
+    type: Literal["notify"] = "notify"
+    room_id: str = Field(min_length=1)
+    noti_message: str = Field(min_length=1)
     
 class PacketCreateRoom(PacketBase):
     type: Literal["create_room"] = "create_room"
     room_id: str = Field(min_length=1)
     teacher: str = Field(min_length=1)
+    
+class PacketLogout(PacketBase):
+    type: Literal["logout"] = "logout"
+    room_id: str = Field(min_length=1)
+    teacher: str = Field(min_length=1)
+

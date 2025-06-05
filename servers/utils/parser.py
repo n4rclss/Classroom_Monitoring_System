@@ -2,7 +2,9 @@ from .packets import *
 import json
 
 MESSAGE_TYPES = {
-    "login": PacketLogin
+    "login": PacketLogin,
+    "create_room": PacketCreateRoom,
+    "logout": PacketLogout,
 }
 
 def parse_message(raw_data: bytes):

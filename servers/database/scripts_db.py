@@ -98,7 +98,7 @@ def list_rooms(db):
         # Get all rooms
         cursor.execute(
             """
-            SELECT r.room_id, r.teacher_username, r.created_at,
+            SELECT r.room_id, r.teacher, r.created_at,
                    COUNT(rp.student_username) as student_count
             FROM rooms r
             LEFT JOIN room_participants rp ON r.room_id = rp.room_id
@@ -116,7 +116,7 @@ def list_rooms(db):
         for room in rooms:
             # Corrected f-string usage with single quotes for keys
             print(f"\n--- Room ID: {room['room_id']} ---")
-            print(f"    Teacher: {room['teacher_username']}")
+            print(f"    Teacher: {room['teacher']}")
             print(f"    Created: {room['created_at']}")
             print(f"    Student Count: {room['student_count']}")
 

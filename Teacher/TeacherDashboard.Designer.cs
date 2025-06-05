@@ -32,9 +32,9 @@
             this.Room_ID_tb = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.refresh_btt = new System.Windows.Forms.Button();
-            this.status_online_tb = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.Send_message_to_all_btt = new System.Windows.Forms.Button();
+            this.statusPanel = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // label1
@@ -45,7 +45,6 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(87, 25);
             this.label1.TabIndex = 0;
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.label1.Text = "Room ID";
             // 
             // Room_ID_tb
@@ -55,7 +54,6 @@
             this.Room_ID_tb.Name = "Room_ID_tb";
             this.Room_ID_tb.Size = new System.Drawing.Size(117, 43);
             this.Room_ID_tb.TabIndex = 1;
-            this.Room_ID_tb.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             // 
             // button1
             // 
@@ -67,43 +65,31 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(236, 61);
             this.button1.TabIndex = 2;
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.button1.Text = "Create";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Create_Click);
             // 
             // refresh_btt
             // 
+            this.refresh_btt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.refresh_btt.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.refresh_btt.Location = new System.Drawing.Point(631, 343);
+            this.refresh_btt.Location = new System.Drawing.Point(631, 373);
             this.refresh_btt.Name = "refresh_btt";
             this.refresh_btt.Size = new System.Drawing.Size(143, 56);
             this.refresh_btt.TabIndex = 4;
-            this.refresh_btt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.refresh_btt.Text = "Refresh user";
             this.refresh_btt.UseVisualStyleBackColor = true;
             this.refresh_btt.Click += new System.EventHandler(this.refresh_btt_Click);
             // 
-            // status_online_tb
-            // 
-            this.status_online_tb.Location = new System.Drawing.Point(306, 56);
-            this.status_online_tb.Multiline = true;
-            this.status_online_tb.Name = "status_online_tb";
-            this.status_online_tb.Size = new System.Drawing.Size(468, 269);
-            this.status_online_tb.TabIndex = 5;
-            this.status_online_tb.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            // 
             // label2
             // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
             this.label2.Location = new System.Drawing.Point(479, 17);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(153, 29);
             this.label2.TabIndex = 6;
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.Text = "Online Users";
             // 
             // Send_message_to_all_btt
@@ -116,25 +102,33 @@
             this.Send_message_to_all_btt.Name = "Send_message_to_all_btt";
             this.Send_message_to_all_btt.Size = new System.Drawing.Size(236, 58);
             this.Send_message_to_all_btt.TabIndex = 7;
-            this.Send_message_to_all_btt.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
             this.Send_message_to_all_btt.Text = "Send message to all";
             this.Send_message_to_all_btt.UseVisualStyleBackColor = true;
             this.Send_message_to_all_btt.Click += new System.EventHandler(this.Send_message_to_all_btt_Click);
+            // 
+            // statusPanel
+            // 
+            this.statusPanel.AutoScroll = true;
+            this.statusPanel.Location = new System.Drawing.Point(310, 59);
+            this.statusPanel.Name = "statusPanel";
+            this.statusPanel.Size = new System.Drawing.Size(464, 293);
+            this.statusPanel.TabIndex = 8;
             // 
             // TeacherDashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.statusPanel);
             this.Controls.Add(this.Send_message_to_all_btt);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.status_online_tb);
             this.Controls.Add(this.refresh_btt);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.Room_ID_tb);
             this.Controls.Add(this.label1);
             this.Name = "TeacherDashboard";
             this.Text = "TeacherDashboard";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TeacherDashboard_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,8 +140,8 @@
         private System.Windows.Forms.TextBox Room_ID_tb;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button refresh_btt;
-        private System.Windows.Forms.TextBox status_online_tb;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button Send_message_to_all_btt;
+        private System.Windows.Forms.Panel statusPanel;
     }
 }

@@ -3,6 +3,27 @@ using System.Text.RegularExpressions;
 
 namespace Teacher.MessageModel
 {
+
+    public class Notify
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "notify";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("noti_message")]
+        public string noti_message { get; set; }
+    }
+    public class Refresh
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "refresh";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+    }
     public class LoginMessage
     {
         [JsonPropertyName("type")]
@@ -26,5 +47,30 @@ namespace Teacher.MessageModel
 
         [JsonPropertyName("message")]
         public string Message { get; set; }
+    }
+
+
+    public class Create_room
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "create_room";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("teacher")]
+        public string teacher { get; set; }
+    }
+
+    public class Log_out
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "logout";
+
+        [JsonPropertyName("room_id")]
+        public string room_id { get; set; }
+
+        [JsonPropertyName("teacher")]
+        public string teacher { get; set; }
     }
 }
