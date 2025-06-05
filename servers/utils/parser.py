@@ -1,13 +1,8 @@
-from models.messages import RefreshMessage,SendMessageToAll, LoginMessage, JoinRoomMessage, ChatMessage, CreateRoomMessage 
+from servers.models.packets import *
 import json
 
 MESSAGE_TYPES = {
-    "login": LoginMessage,
-    "join_room": JoinRoomMessage,
-    "chat_message": ChatMessage,
-    "create_room": CreateRoomMessage,
-    "refresh" : RefreshMessage,
-    "send_message_to_all": SendMessageToAll  # Assuming this is the correct model
+    "login": PacketLogin
 }
 
 def parse_message(raw_data: bytes):
