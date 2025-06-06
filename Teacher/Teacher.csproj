@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthService.cs" />
-    <Compile Include="ClassroomManager.cs" />
+    <Compile Include="StudentPanel.cs" />
     <Compile Include="Notify.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using _StudentPanel = Teacher.StudentPanel.StudentPanel;
+
 
 namespace Teacher
 {
@@ -27,61 +29,6 @@ namespace Teacher
             await refresh();
         }
         
-        private Panel CreateStudentPanel(string username, string studentName, string mssv)
-        {
-            Panel studentPanel = new Panel
-            {
-                Width = 140,
-                Height = 120,
-                Margin = new Padding(5),
-                BackColor = Color.FromArgb(230, 240, 255),
-                BorderStyle = BorderStyle.FixedSingle
-            };
-
-            Label nameLabel = new Label
-            {
-                Text = studentName,
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                AutoSize = false,
-                Width = 130,
-                Height = 22,
-                Top = 5,
-                Left = 5,
-                ForeColor = Color.DarkBlue
-            };
-
-            Label usernameLabel = new Label
-            {
-                Text = $"Username: {username}",
-                Font = new Font("Segoe UI", 11),
-                AutoSize = false,
-                Width = 130,
-                Height = 20,
-                Top = 30,
-                Left = 5,
-                ForeColor = Color.DimGray
-            };
-
-            Label mssvLabel = new Label
-            {
-                Text = $"MSSV: {mssv}",
-                Font = new Font("Segoe UI", 10),
-                AutoSize = false,
-                Width = 130,
-                Height = 20,
-                Top = 50,
-                Left = 5
-            };
-
-          
-
-            studentPanel.Controls.Add(nameLabel);
-            studentPanel.Controls.Add(usernameLabel);
-            studentPanel.Controls.Add(mssvLabel);
-        
-
-            return studentPanel;
-        }
 
         public async Task<bool> refresh()
         {
@@ -124,13 +71,15 @@ namespace Teacher
                            
                             foreach (JsonElement participant in participantsElement.EnumerateArray())
                             {
-                                MessageBox.Show(participant.ToString());
+                                //MessageBox.Show(participant.ToString());
                                 string username = participant.GetProperty("username").GetString();
                                 string studentName = participant.GetProperty("student_name").GetString();
                                 string mssv = participant.GetProperty("mssv").GetString();
 
-                                Panel studentBlock = CreateStudentPanel(username, studentName, mssv);
-                                statusPanel.Controls.Add(studentBlock);
+                                // Khúc này để tạo panel cho từng học sinh
+                                _StudentPanel studentPanel = new _StudentPanel(username, studentName, mssv);
+                                Panel panel = studentPanel.CreateStudentPanel();
+                                statusPanel.Controls.Add(panel);
                             }
 
 
