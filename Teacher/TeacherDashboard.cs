@@ -153,12 +153,6 @@ namespace Teacher
             return false; // Return false in case of any exception
         }
 
-
-
-
-
-
-
         private void Send_message_to_all_btt_Click(object sender, EventArgs e)
         {
             if (Globals.roomID.Length > 0)

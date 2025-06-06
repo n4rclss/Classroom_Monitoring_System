@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,7 +13,6 @@ namespace Teacher
             InitializeComponent();
             _netManager = netManager;
         }
-
         public async Task<bool> Notify_message()
         {
             try
@@ -30,7 +23,6 @@ namespace Teacher
                     noti_message = Send_to_all_tb.Text,
                 };
 
-                // Check if netManager is connected
                 if (!_netManager.IsConnected)
                 {
                     await _netManager.ConnectAsync();
@@ -40,23 +32,21 @@ namespace Teacher
                 string responseData = await _netManager.ProcessSendMessage(Notify_message_);
                 if (string.IsNullOrEmpty(responseData))
                 {
-                    return false; // No response from server
+                    return false;
                 }
-                JsonDocument doc = JsonDocument.Parse(responseData);
-                var status = doc.RootElement.GetProperty("status").GetString();
-                var message = doc.RootElement.GetProperty("message").GetString();
-                /* Handle message types */
+
+                JObject doc = JObject.Parse(responseData);
+                var status = (string)doc["status"];
+                var message = (string)doc["message"];
+
                 switch (status)
                 {
                     case "success":
-                        {
-                            MessageBox.Show(message);
-                            return true;
-                        }
+                        MessageBox.Show(message);
+                        return true;
                     case "error":
                         return false;
                     default:
-                        // Handle unknown message type
                         return false;
                 }
             }
@@ -64,8 +54,9 @@ namespace Teacher
             {
                 Console.WriteLine("Error: " + ex.Message);
             }
-            return false; // Return false in case of any exception
+            return false;
         }
+
 
         private async void Send_to_all_btt_Click(object sender, EventArgs e)
         {

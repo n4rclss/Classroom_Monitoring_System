@@ -146,13 +146,10 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                     try:
                         print("++++++++LOGOUT++++++++++++++")
                         logout_packet = PacketLogout.model_validate(request_data)
-                        # handle_logout might perform DB checks (e.g., leave rooms)
                         status, message = await handle_logout(db, client_id, logout_packet)
                         if status == "success":
-                             # Unregister the client mapping from the DB upon successful logout
-                             if not db.unregister_client(logout_packet.username):
-                                 print(f"[!] Failed to unregister client 	'{logout_packet.username}' from DB.")
-                                 # Logout succeeded, but cleanup failed. Log and continue.
+                             if not db.unregister_client(logout_packet.teacher):
+                                 print(f"[!] Failed to unregister client 	'{logout_packet.teacher}' from DB.")
                         response_packet = create_response_packet(client_id, status, message)
                     except ValidationError as e:
                         print(f"[!] Invalid log out packet structure from client {client_id}: {e}")
