@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Literal
+from typing import List, Literal
 
 class PacketBase(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
@@ -49,24 +49,18 @@ class PacketCreateRoom(PacketBase):
     
 class PacketLogout(PacketBase):
     type: Literal["logout"] = "logout"
-    # These fields seem incorrect for logout, usually just username is needed.
-    # Keeping them as per the provided file for now.
     room_id: str = Field(min_length=1) 
     teacher: str = Field(min_length=1)
-    # It should likely be:
-    # username: str = Field(min_length=1)
 
-# Note: We also need packet formats for messages SENT BY the server to clients,
-# e.g., for starting the stream. These aren't validated on input here,
-# but defined implicitly in the sending logic (main.py/handlers).
-# Example server-to-target format (conceptual):
-# {
-#   "type": "start_streaming",
-#   "initiator_client_id": "client_id_of_requester"
-# }
-# Example server-to-initiator format (conceptual):
-# {
-#   "type": "screen_data",
-#   "image_data": "..." 
-# }
+class PacketRequestApp(PacketBase):
+    type: Literal["request_app"] = "request_app"
+    target_username: str = Field(min_length=1)
+    
+class ProcessInfo(BaseModel):
+    process_name: str
+    main_window_title: str
 
+class PacketReturnApp(PacketBase):
+    type: Literal["return_app"] = "return_app"
+    sender_client_id: str = Field(min_length=1)
+    app_data: List[ProcessInfo] = Field(default_factory=list) # a list of ProcessInfo objects
