@@ -85,6 +85,7 @@ namespace Student.NetworkManager
             {
                 Console.WriteLine("Started passive listening loop.");
 
+
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     // Read raw bytes, assuming server sends raw JSON for other messages too
@@ -111,6 +112,17 @@ namespace Student.NetworkManager
                             string formatted = $"{sender} says: {content}";
                             Console.WriteLine(formatted); // Log instead of MessageBox
                             OnMessageReceived?.Invoke(formatted);
+                        }
+
+                        if (type_message == "start_streaming")
+                        {
+                            var capture_screen_message = new Student.MessageModel.Screen_data
+                            {
+                                image_data = "This is answer from student for that trigger from teacher",
+                                sender_client_id = doc.RootElement.GetProperty("sender_client_id").GetString(),
+                        };
+                            await SendAsync(capture_screen_message).ConfigureAwait(false);
+                            MessageBox.Show("Student receive trigger messagee successfully!");
                         }
                     }
                     catch (Exception parseEx)

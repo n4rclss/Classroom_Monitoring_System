@@ -33,6 +33,26 @@ class ClassroomDatabase:
             raise # Re-raise the exception after logging/rollback
         finally:
             conn.close()
+    def fetch_all(self, query: str, params: tuple = ()) -> List[sqlite3.Row]:
+        try:
+            with self._get_cursor(commit_on_exit=False) as cursor:
+                cursor.execute(query, params)
+                return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"[!] DB Error during fetch_all: {e}")
+            return []
+
+
+    def fetch_one(self, query: str, params: tuple = ()) -> Optional[sqlite3.Row]:
+        """Executes a SELECT query and returns a single row result."""
+        try:
+            with self._get_cursor(commit_on_exit=False) as cursor:
+                cursor.execute(query, params)
+                return cursor.fetchone()
+        except sqlite3.Error as e:
+            print(f"[!] DB Error during fetch_one: {e}")
+            return None
+
 
     def _initialize_db(self):
         """Initialize all required tables."""

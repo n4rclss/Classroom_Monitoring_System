@@ -3,6 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace Teacher.MessageModel
 {
+    public class Streaming_message
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "streaming";
+
+        [JsonPropertyName("target_username")]
+        public string target_username { get; set; }
+
+     
+    }
 
     public class Notify
     {

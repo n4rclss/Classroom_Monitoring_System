@@ -14,7 +14,7 @@ namespace Teacher.NetworkManager
         private TcpClient _client;
         private NetworkStream _stream;
         private BinaryReader _reader;
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        public CancellationTokenSource _cts = new CancellationTokenSource();
         private Task _listeningTask;
         private volatile bool _isConnected;
         private readonly object _listenLock = new object();
@@ -90,7 +90,9 @@ namespace Teacher.NetworkManager
             return response;
         }
 
-        private async Task<string> ListenResponsesAsync(CancellationToken token)
+
+
+        public async Task<string> ListenResponsesAsync(CancellationToken token)
         {
             Console.WriteLine("Waiting for response from load balancer...");
             string response = "";

@@ -19,8 +19,11 @@ namespace Teacher.StudentPanel
         public string username { get; set; }
         public string mssv { get; set; }
 
-        public StudentPanel(string username, string studentName, string mssv)
+        private NetworkManager.NetworkManager _netManager;
+
+        public StudentPanel(NetworkManager.NetworkManager netManager, string username, string studentName, string mssv)
         {
+            _netManager = netManager;
             this.studentName = studentName;
             this.username = username;
             this.mssv = mssv;
@@ -91,8 +94,16 @@ namespace Teacher.StudentPanel
             btnWatch.Location = new Point(100, 85);
             btnWatch.Click += (s, e) =>
             {
-                // Stream màn hình học sinh 
-                MessageBox.Show($"Nút này dùng để stream màn hình của {studentName}");
+                if (Globals.roomID.Length > 0)
+                {
+                    Streaming cap = new Streaming(_netManager, this.username);
+                    cap.Show();
+                }
+                else
+                {
+                    MessageBox.Show("You have to create room first");
+                }
+
             };
 
             
