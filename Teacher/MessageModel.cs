@@ -83,4 +83,21 @@ namespace Teacher.MessageModel
         [JsonPropertyName("teacher")]
         public string teacher { get; set; }
     }
+    // message request running apps
+    public class RequestRunningApps
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "request_app";
+        [JsonPropertyName("target_username")]
+        public string target_username { get; set; }
+    }
+
+    public class ProcessInfo
+    {
+        [JsonPropertyName("process_name")]
+        public string process_name { get; set; }
+
+        [JsonPropertyName("main_window_title")]
+        public string main_window_title { get; set; }
+    }
 }

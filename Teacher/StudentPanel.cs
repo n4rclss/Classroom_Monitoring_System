@@ -107,14 +107,14 @@ namespace Teacher.StudentPanel
             };
 
             
-            Button btnAlert = new Button();
-            btnAlert.Text = "Gửi tin nhắn";
-            btnAlert.Size = new Size(100, 25);
-            btnAlert.Location = new Point(230, 85);
-            btnAlert.Click += (s, e) =>
+            Button btnRequestApp = new Button();
+            btnRequestApp.Text = "App đang chạy";
+            btnRequestApp.Size = new Size(100, 25);
+            btnRequestApp.Location = new Point(230, 85);
+            btnRequestApp.Click += (s, e) =>
             {
-                // Gửi tin nhắn alert đến học sinh
-                MessageBox.Show($"Đã gửi tin nhắn đến học sinh {studentName}");
+                ShowApp showApp = new ShowApp(_netManager, this.username);
+                showApp.Show();
             };
 
             studentPanel.Controls.Add(nameLabel);
@@ -122,7 +122,7 @@ namespace Teacher.StudentPanel
             studentPanel.Controls.Add(mssvLabel);
             studentPanel.Controls.Add(btnDelete);
             studentPanel.Controls.Add(btnWatch);
-            studentPanel.Controls.Add(btnAlert);
+            studentPanel.Controls.Add(btnRequestApp);
 
 
             return studentPanel;

@@ -141,6 +141,9 @@
     <EmbeddedResource Include="Notify.resx">
       <DependentUpon>Notify.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ShowApp.resx">
+      <DependentUpon>ShowApp.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Streaming.resx">
       <DependentUpon>Streaming.cs</DependentUpon>
     </EmbeddedResource>
