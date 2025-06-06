@@ -150,8 +150,8 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                         status, message = await handle_logout(db, client_id, logout_packet)
                         if status == "success":
                              # Unregister the client mapping from the DB upon successful logout
-                             if not db.unregister_client(logout_packet.username):
-                                 print(f"[!] Failed to unregister client 	'{logout_packet.username}' from DB.")
+                             if not db.unregister_client(logout_packet.teacher):
+                                 print(f"[!] Failed to unregister client 	'{logout_packet.teacher}' from DB.")
                                  # Logout succeeded, but cleanup failed. Log and continue.
                         response_packet = create_response_packet(client_id, status, message)
                     except ValidationError as e:
