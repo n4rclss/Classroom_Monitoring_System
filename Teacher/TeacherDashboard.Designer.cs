@@ -34,7 +34,7 @@
             this.refresh_btt = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.Send_message_to_all_btt = new System.Windows.Forms.Button();
-            this.statusPanel = new System.Windows.Forms.Panel();
+            this.statusPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // label1
@@ -73,7 +73,7 @@
             // 
             this.refresh_btt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.refresh_btt.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.refresh_btt.Location = new System.Drawing.Point(631, 373);
+            this.refresh_btt.Location = new System.Drawing.Point(631, 382);
             this.refresh_btt.Name = "refresh_btt";
             this.refresh_btt.Size = new System.Drawing.Size(143, 56);
             this.refresh_btt.TabIndex = 4;
@@ -109,9 +109,9 @@
             // statusPanel
             // 
             this.statusPanel.AutoScroll = true;
-            this.statusPanel.Location = new System.Drawing.Point(310, 59);
+            this.statusPanel.Location = new System.Drawing.Point(303, 65);
             this.statusPanel.Name = "statusPanel";
-            this.statusPanel.Size = new System.Drawing.Size(464, 293);
+            this.statusPanel.Size = new System.Drawing.Size(485, 302);
             this.statusPanel.TabIndex = 8;
             // 
             // TeacherDashboard
@@ -142,6 +142,6 @@
         private System.Windows.Forms.Button refresh_btt;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button Send_message_to_all_btt;
-        private System.Windows.Forms.Panel statusPanel;
+        private System.Windows.Forms.FlowLayoutPanel statusPanel;
     }
 }
