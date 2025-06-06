@@ -11,6 +11,12 @@ def initialize_sample_data(db):
         ("stu1", "s", "student"),
         ("stu2", "ss", "student"),
         ("stu3", "sss", "student"),
+        ("stu4", "s4", "student"),
+        ("stu5", "s5", "student"),
+        ("stu6", "s6", "student"),
+        ("stu7", "s7", "student"),
+        ("stu8", "s8", "student"),
+        ("stu9", "s9", "student"),
     ]
 
     with db._get_cursor() as cursor:
@@ -21,7 +27,7 @@ def initialize_sample_data(db):
         """,
             sample_users,
         )
-    print("Added sample users: teacher, stu1, stu2, stu3")
+    print("Added sample users: " + " ".join(user[0] for user in sample_users))
 
 def clear_all_data(db):
     """Clear all data from the database"""
@@ -98,7 +104,7 @@ def list_rooms(db):
         # Get all rooms
         cursor.execute(
             """
-            SELECT r.room_id, r.teacher_username, r.created_at,
+            SELECT r.room_id, r.teacher, r.created_at,
                    COUNT(rp.student_username) as student_count
             FROM rooms r
             LEFT JOIN room_participants rp ON r.room_id = rp.room_id
@@ -116,7 +122,7 @@ def list_rooms(db):
         for room in rooms:
             # Corrected f-string usage with single quotes for keys
             print(f"\n--- Room ID: {room['room_id']} ---")
-            print(f"    Teacher: {room['teacher_username']}")
+            print(f"    Teacher: {room['teacher']}")
             print(f"    Created: {room['created_at']}")
             print(f"    Student Count: {room['student_count']}")
 

@@ -104,10 +104,10 @@ namespace Student.NetworkManager
                     {
                         var doc = JsonDocument.Parse(response);
                         string type_message = doc.RootElement.GetProperty("type").GetString();
-                        if (type_message == "send_message_to_all") // Example handling
+                        if (type_message == "notification") // Example handling
                         {
-                            var content = doc.RootElement.GetProperty("content").GetString();
-                            var sender = doc.RootElement.GetProperty("sender").GetString();
+                            var content = doc.RootElement.GetProperty("message").GetString();
+                            var sender = doc.RootElement.GetProperty("sender_username").GetString();
                             string formatted = $"{sender} says: {content}";
                             Console.WriteLine(formatted); // Log instead of MessageBox
                             OnMessageReceived?.Invoke(formatted);

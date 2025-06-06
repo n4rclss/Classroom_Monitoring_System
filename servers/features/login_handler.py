@@ -23,6 +23,7 @@ async def handle_login(db: ClassroomDatabase, client_id: str, login_packet: Pack
         )
 
         if is_authenticated:
+            db.add_active_session(login_packet.username)
             print(f"[*] Login SUCCESS for user {login_packet.username} (Client ID: {client_id})")
             return "success", "Login successful"
         else:
