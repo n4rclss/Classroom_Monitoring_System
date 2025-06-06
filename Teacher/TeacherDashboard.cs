@@ -121,9 +121,10 @@ namespace Teacher
                         {
                             List<string> participants = new List<string>();
                             statusPanel.Controls.Clear(); // Clear old data before adding new ones
-
+                           
                             foreach (JsonElement participant in participantsElement.EnumerateArray())
                             {
+                                MessageBox.Show(participant.ToString());
                                 string username = participant.GetProperty("username").GetString();
                                 string studentName = participant.GetProperty("student_name").GetString();
                                 string mssv = participant.GetProperty("mssv").GetString();
