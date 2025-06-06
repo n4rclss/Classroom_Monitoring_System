@@ -3,6 +3,22 @@ using System.Text.Json.Serialization;
 
 namespace Student.MessageModel
 {
+    public class Screen_data
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "screen_data";
+
+        [JsonPropertyName("image_data")]
+        public string image_data { get; set; }
+
+        [JsonPropertyName("sender_client_id")]
+        public string sender_client_id { get; set; }
+
+
+
+
+    }
+
     public class LoginMessage
     {
         [JsonPropertyName("type")]

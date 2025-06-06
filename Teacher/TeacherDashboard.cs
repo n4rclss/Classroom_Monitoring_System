@@ -77,7 +77,7 @@ namespace Teacher
                                 string mssv = participant.GetProperty("mssv").GetString();
 
                                 // Khúc này để tạo panel cho từng học sinh
-                                _StudentPanel studentPanel = new _StudentPanel(username, studentName, mssv);
+                                _StudentPanel studentPanel = new _StudentPanel(_netManager, username, studentName, mssv);
                                 Panel panel = studentPanel.CreateStudentPanel();
                                 statusPanel.Controls.Add(panel);
                             }
