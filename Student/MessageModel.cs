@@ -1,7 +1,7 @@
-﻿using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace Student.MessageModel // Keep namespace for consistency
+namespace Student.MessageModel
 {
     public class LoginMessage
     {
@@ -45,5 +45,53 @@ namespace Student.MessageModel // Keep namespace for consistency
 
         [JsonPropertyName("message")]
         public string Message { get; set; }
+    }
+    public class RunningAppMessage
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; set; } = "return_app";
+
+        [JsonPropertyName("room_id")]
+        public string RoomId { get; set; }
+        [JsonPropertyName("teacher_username")]
+        public string TeacherUsername { get; set; } // teacher's username
+       
+        [JsonPropertyName("username")]
+        public string Username { get; set; }
+
+        [JsonPropertyName("apps")]
+        public List<ProcessInfo> Apps { get; set; } = new List<ProcessInfo>();
+
+        public class ProcessInfo
+        {
+            [JsonPropertyName("process_name")]
+            public string ProcessName { get; set; }
+
+            [JsonPropertyName("main_window_title")]
+            public string MainWindowTitle { get; set; }
+        }
+
+        /*
+         {
+            type: "return_app",
+            room_id: "1",
+            teacher_username: "teacher1",
+            username: "student1",
+            apps: [
+                      {
+                        "process_name": "devenv",
+                        "main_window_title": "Classroom_Monitoring_System - Microsoft Visual Studio (Administrator)"
+                      },
+                      {
+                        "process_name": "TextInputHost",
+                        "main_window_title": "Windows Input Experience"
+                      },
+                      {
+                        "process_name": "explorer",
+                        "main_window_title": ""
+                      }
+                  ]
+         }
+         */
     }
 }

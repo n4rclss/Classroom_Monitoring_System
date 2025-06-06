@@ -17,6 +17,7 @@ namespace Student
         /// The main entry point for the application.  
         /// </summary>  
         [STAThread]
+
         static async Task Main()
         {
             NetworkManager.NetworkManager netManager = new NetworkManager.NetworkManager();
@@ -24,6 +25,15 @@ namespace Student
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Login(netManager));
+            Application.Run(new TestRunningApp());
         }
+
+        // Test json gửi về server 
+        //static void Main()
+        //{
+        //    Application.EnableVisualStyles();
+        //    Application.SetCompatibleTextRenderingDefault(false);
+        //    Application.Run(new TestRunningApp());
+        //}
     }
 }

@@ -109,7 +109,7 @@ namespace Student.NetworkManager
                             var content = doc.RootElement.GetProperty("message").GetString();
                             var sender = doc.RootElement.GetProperty("sender_username").GetString();
                             string formatted = $"{sender} says: {content}";
-                            Console.WriteLine(formatted); // Log instead of MessageBox
+                            Console.WriteLine(formatted);
                             OnMessageReceived?.Invoke(formatted);
                         }
                     }
