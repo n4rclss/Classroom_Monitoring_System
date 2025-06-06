@@ -78,11 +78,9 @@ namespace Student
                 }
                 catch (Exception ex)
                 {
-                    // Log errors for processes that might be inaccessible
                     Console.WriteLine($"Error accessing process {p.Id} ({p.ProcessName}): {ex.Message}");
                 }
             }
-            // Ensure uniqueness just in case the two methods added the same process
             userProcesses = userProcesses.GroupBy(proc => proc.Id).Select(g => g.First()).ToList();
         }
 

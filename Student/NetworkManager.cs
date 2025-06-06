@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Student.MessageModel;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -19,6 +21,7 @@ namespace Student.NetworkManager
         private BinaryReader _reader; // Changed from StreamReader
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private Task _listeningTask;
+        private RunningApp _runningAppHelper = new RunningApp();
         private volatile bool _isConnected;
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
@@ -73,9 +76,6 @@ namespace Student.NetworkManager
                 throw new InvalidOperationException("Connection lost while sending data.", ex);
             }
         }
-
-        // This passive listening might need adjustments depending on how the server sends non-login messages
-        // For now, focusing on the request-response pattern for login
         public async Task ListeningPassivelyForever()
         {
             if (!_isConnected)
@@ -123,6 +123,36 @@ namespace Student.NetworkManager
                         };
                             await SendAsync(capture_screen_message).ConfigureAwait(false);
                             MessageBox.Show("Student receive trigger messagee successfully!");
+                        }
+
+                        // --- Handle request_app --- 
+                        else if (type_message == "request_app")
+                        {
+                            Console.WriteLine("Received request_app command.");
+                            try
+                            {
+                                if (!doc.RootElement.TryGetProperty("sender_client_id", out JsonElement senderIdElement) || senderIdElement.ValueKind != JsonValueKind.String)
+                                {
+                                    Console.WriteLine("request_app packet missing valid sender_client_id.");
+                                    continue;
+                                }
+                                string teacherClientId = senderIdElement.GetString();
+                                List<RunningAppMessage.ProcessInfo> runningApps = _runningAppHelper.GetRunningAppsInfo();
+                                _runningAppHelper.ShowRunningAppsJson();
+                                var responsePacket = new RunningAppMessage
+                                {
+
+                                    sender_client_id = teacherClientId,
+                                    app_data = runningApps
+                                };
+
+                                await SendAsync(responsePacket).ConfigureAwait(false);
+                                Console.WriteLine($"Sent return_app response to {teacherClientId}.");
+                            }
+                            catch (Exception appEx)
+                            {
+                                Console.WriteLine($"Error processing request_app: {appEx.Message}");
+                            }
                         }
                     }
                     catch (Exception parseEx)

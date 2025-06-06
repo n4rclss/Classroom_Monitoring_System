@@ -25,15 +25,7 @@ namespace Student
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Login(netManager));
-            Application.Run(new TestRunningApp());
+            //Application.Run(new TestRunningApp());
         }
-
-        // Test json gửi về server 
-        //static void Main()
-        //{
-        //    Application.EnableVisualStyles();
-        //    Application.SetCompatibleTextRenderingDefault(false);
-        //    Application.Run(new TestRunningApp());
-        //}
     }
 }

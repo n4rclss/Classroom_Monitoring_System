@@ -67,16 +67,11 @@ namespace Student.MessageModel
         [JsonPropertyName("type")]
         public string Type { get; set; } = "return_app";
 
-        [JsonPropertyName("room_id")]
-        public string RoomId { get; set; }
-        [JsonPropertyName("teacher_username")]
-        public string TeacherUsername { get; set; } // teacher's username
-       
-        [JsonPropertyName("username")]
-        public string Username { get; set; }
+        [JsonPropertyName("sender_client_id")]
+        public string sender_client_id { get; set; }
 
-        [JsonPropertyName("apps")]
-        public List<ProcessInfo> Apps { get; set; } = new List<ProcessInfo>();
+        [JsonPropertyName("app_data")]
+        public List<ProcessInfo> app_data { get; set; } = new List<ProcessInfo>();
 
         public class ProcessInfo
         {
@@ -87,27 +82,6 @@ namespace Student.MessageModel
             public string MainWindowTitle { get; set; }
         }
 
-        /*
-         {
-            type: "return_app",
-            room_id: "1",
-            teacher_username: "teacher1",
-            username: "student1",
-            apps: [
-                      {
-                        "process_name": "devenv",
-                        "main_window_title": "Classroom_Monitoring_System - Microsoft Visual Studio (Administrator)"
-                      },
-                      {
-                        "process_name": "TextInputHost",
-                        "main_window_title": "Windows Input Experience"
-                      },
-                      {
-                        "process_name": "explorer",
-                        "main_window_title": ""
-                      }
-                  ]
-         }
-         */
+       
     }
 }
