@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDPCOMAPILib;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Sockets;
@@ -13,7 +14,7 @@ namespace Student.NetworkManager
     public class NetworkManager : IDisposable
     {
         public Action<string> OnMessageReceived;
-
+        private string _invitationToken;
         private TcpClient _client;
         private NetworkStream _stream;
         private BinaryReader _reader; // Changed from StreamReader
@@ -23,12 +24,25 @@ namespace Student.NetworkManager
         private readonly object _listenLock = new object();
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
+        private RDPSession _rdpSession;
+        private Thread _rdpThread;
+        private volatile bool _rdpActive = false;
+        private readonly object _rdpLock = new object();
+        private ManualResetEventSlim _rdpCompletedEvent = new ManualResetEventSlim(false);
+
+
         // Updated to use load balancer address and port
         private const string DefaultServerAddress = "127.0.0.1";
         private const int DefaultServerPort = 8000;
 
         public event EventHandler Disconnected;
         public bool IsConnected => _isConnected;
+
+        private void Incoming(object Guest)
+        {
+            IRDPSRAPIAttendee MyGuest = (IRDPSRAPIAttendee)Guest;
+            MyGuest.ControlLevel = CTRL_LEVEL.CTRL_LEVEL_INTERACTIVE;
+        }
 
         public async Task ConnectAsync(string host = DefaultServerAddress, int port = DefaultServerPort)
         {
@@ -116,13 +130,7 @@ namespace Student.NetworkManager
 
                         if (type_message == "start_streaming")
                         {
-                            var capture_screen_message = new Student.MessageModel.Screen_data
-                            {
-                                image_data = "This is answer from student for that trigger from teacher",
-                                sender_client_id = doc.RootElement.GetProperty("sender_client_id").GetString(),
-                        };
-                            await SendAsync(capture_screen_message).ConfigureAwait(false);
-                            MessageBox.Show("Student receive trigger messagee successfully!");
+                            await HandleCaptureScreen(doc.RootElement.GetProperty("sender_client_id").GetString());
                         }
                     }
                     catch (Exception parseEx)
@@ -212,6 +220,162 @@ namespace Student.NetworkManager
             }
             
             return response; 
+        }
+
+
+        private async Task HandleCaptureScreen(string sender_client_id)
+        {
+            Console.WriteLine("Received capture screen request from student.");
+            MessageBox.Show("Capture screen message from student!");
+
+            // Start RDP in fire-and-forget manner to avoid blocking the listening loop
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await StartRDPSessionAsync(sender_client_id);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error starting RDP session: {ex.Message}");
+                }
+            });
+        }
+
+        private async Task StartRDPSessionAsync(string sender_client_id)
+        {
+            await Task.Run(() =>
+            {
+                lock (_rdpLock)
+                {
+                    if (_rdpActive)
+                    {
+                        Console.WriteLine("RDP session already active.");
+                        return;
+                    }
+                    _rdpActive = true;
+                }
+
+                _rdpThread = new Thread(RDPThreadWorker)
+                {
+                    IsBackground = true,
+                    Name = "RDPThread"
+                };
+
+                _rdpCompletedEvent.Reset();
+                _rdpThread.Start();
+            });
+
+            // Wait for RDP setup to complete (with timeout)
+            bool completed = _rdpCompletedEvent.Wait(TimeSpan.FromSeconds(10));
+            if (!completed)
+            {
+                Console.WriteLine("RDP setup timed out.");
+                return;
+            }
+
+            // Send the invitation token after RDP is set up
+            if (!string.IsNullOrEmpty(_invitationToken))
+            {
+                var screenResponse = new Student.MessageModel.Screen_data
+                {
+                    image_data = _invitationToken,
+                    sender_client_id = sender_client_id,
+                };
+
+                try
+                {
+                    await SendAsync(screenResponse).ConfigureAwait(false);
+                    MessageBox.Show("Student send token successfully with token length: " + _invitationToken?.Length.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to send RDP token: {ex.Message}");
+                }
+            }
+        }
+
+        private void RDPThreadWorker()
+        {
+            try
+            {
+                Console.WriteLine("RDP thread started.");
+
+                // Initialize RDP session on this thread
+                _rdpSession = new RDPSession();
+                _rdpSession.OnAttendeeConnected += Incoming;
+
+                // Open RDP session
+                _rdpSession.Open();
+
+                // Create invitation
+                IRDPSRAPIInvitation invitation = _rdpSession.Invitations.CreateInvitation(
+                    "Monitoring_class",
+                    Globals.UsernameGlobal,
+                    "",
+                    2);
+
+                _invitationToken = invitation.ConnectionString;
+
+                Console.WriteLine($"RDP invitation created with token length: {_invitationToken?.Length}");
+
+                // Signal that RDP setup is complete
+                _rdpCompletedEvent.Set();
+
+                // Keep the RDP session alive
+                while (_rdpActive && !_cts.Token.IsCancellationRequested)
+                {
+                    Thread.Sleep(1000); // Check every second
+                }
+
+                Console.WriteLine("RDP thread ending.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RDP thread error: {ex.Message}");
+            }
+            finally
+            {
+                CleanupRDP();
+                _rdpCompletedEvent.Set(); // Ensure waiting thread is released
+            }
+        }
+
+        private void CleanupRDP()
+        {
+            lock (_rdpLock)
+            {
+                _rdpActive = false;
+                try
+                {
+                    _rdpSession?.Close();
+                    _rdpSession = null;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error cleaning up RDP: {ex.Message}");
+                }
+            }
+        }
+
+        public void StopRDPSession()
+        {
+            lock (_rdpLock)
+            {
+                if (!_rdpActive) return;
+
+                _rdpActive = false;
+                Console.WriteLine("Stopping RDP session...");
+            }
+
+            // Wait for RDP thread to finish (with timeout)
+            if (_rdpThread != null && _rdpThread.IsAlive)
+            {
+                if (!_rdpThread.Join(TimeSpan.FromSeconds(5)))
+                {
+                    Console.WriteLine("RDP thread did not stop gracefully, continuing cleanup.");
+                }
+            }
         }
 
         private async Task HandleDisconnectAsync(Exception reason)

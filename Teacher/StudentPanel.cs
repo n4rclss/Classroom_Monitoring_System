@@ -6,6 +6,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Label = System.Windows.Forms.Label;
@@ -14,6 +15,18 @@ namespace Teacher.StudentPanel
 {
     public class StudentPanel
     {
+        private Control _uiContext;
+
+        public StudentPanel(NetworkManager.NetworkManager netManager, string username, string studentName, string mssv, Control uiContext)
+        {
+            _netManager = netManager;
+            this.studentName = studentName;
+            this.username = username;
+            this.mssv = mssv;
+            this._uiContext = uiContext;
+        }
+
+
         public string studentName { get; set; }
 
         public string username { get; set; }
@@ -21,13 +34,7 @@ namespace Teacher.StudentPanel
 
         private NetworkManager.NetworkManager _netManager;
 
-        public StudentPanel(NetworkManager.NetworkManager netManager, string username, string studentName, string mssv)
-        {
-            _netManager = netManager;
-            this.studentName = studentName;
-            this.username = username;
-            this.mssv = mssv;
-        }
+     
 
         public Panel CreateStudentPanel()
         {
@@ -76,7 +83,7 @@ namespace Teacher.StudentPanel
                 Left = 5
             };
 
-            
+
             Button btnDelete = new Button();
             btnDelete.Text = "Xóa";
             btnDelete.Size = new Size(80, 25);
@@ -87,7 +94,7 @@ namespace Teacher.StudentPanel
                 MessageBox.Show($"Đã xóa học sinh {studentName}");
             };
 
-            
+
             Button btnWatch = new Button();
             btnWatch.Text = "Quan sát màn hình";
             btnWatch.Size = new Size(120, 25);
@@ -96,17 +103,23 @@ namespace Teacher.StudentPanel
             {
                 if (Globals.roomID.Length > 0)
                 {
-                    Streaming cap = new Streaming(_netManager, this.username);
-                    cap.Show();
+                    _uiContext.Invoke((MethodInvoker)delegate
+                    {
+                        Streaming cap = new Streaming(_netManager, this.username);
+                        cap.Show();
+                    });
                 }
                 else
                 {
                     MessageBox.Show("You have to create room first");
                 }
-
             };
 
-            
+
+
+
+
+
             Button btnAlert = new Button();
             btnAlert.Text = "Gửi tin nhắn";
             btnAlert.Size = new Size(100, 25);

@@ -11,7 +11,7 @@ namespace Teacher
         /// <summary>  
         /// The main entry point for the application.  
         /// </summary>  
-        [STAThread]
+        [STAThread] // T
         static async Task Main()
         {
             NetworkManager.NetworkManager netManager = new NetworkManager.NetworkManager();

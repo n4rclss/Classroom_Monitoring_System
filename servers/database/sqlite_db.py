@@ -19,6 +19,7 @@ class ClassroomDatabase:
         """Provides a database cursor within a context manager."""
         # Using WAL mode can improve concurrency for readers and one writer
         conn = sqlite3.connect(self.db_path, timeout=10) # Add timeout
+        conn.execute("PRAGMA foreign_keys = ON")  # 
         conn.execute("PRAGMA journal_mode=WAL;") # Enable WAL mode
         conn.row_factory = sqlite3.Row
         try:

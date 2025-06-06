@@ -28,7 +28,7 @@ namespace Teacher
         {
             await refresh();
         }
-        
+
 
         public async Task<bool> refresh()
         {
@@ -68,7 +68,7 @@ namespace Teacher
                         {
                             List<string> participants = new List<string>();
                             statusPanel.Controls.Clear(); // Clear old data before adding new ones
-                           
+
                             foreach (JsonElement participant in participantsElement.EnumerateArray())
                             {
                                 //MessageBox.Show(participant.ToString());
@@ -77,7 +77,8 @@ namespace Teacher
                                 string mssv = participant.GetProperty("mssv").GetString();
 
                                 // Khúc này để tạo panel cho từng học sinh
-                                _StudentPanel studentPanel = new _StudentPanel(_netManager, username, studentName, mssv);
+                                _StudentPanel studentPanel = new _StudentPanel(_netManager, username, studentName, mssv, this);
+
                                 Panel panel = studentPanel.CreateStudentPanel();
                                 statusPanel.Controls.Add(panel);
                             }
@@ -222,5 +223,7 @@ namespace Teacher
             }
             return false; // Return false in case of any exception
         }
+
+       
     }
 }

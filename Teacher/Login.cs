@@ -9,7 +9,7 @@ namespace Teacher
     {
         private NetworkManager.NetworkManager _netManager;
         private AuthService.AuthService _authService;
-        
+
         public Login(NetworkManager.NetworkManager netManager)
         {
             InitializeComponent();
@@ -31,7 +31,7 @@ namespace Teacher
                 // Show loading indicator or disable login button
                 Btn_login.Enabled = false;
                 Btn_login.Text = "Logging in...";
-                
+
                 var loginResult = _authService.Login(username, password);
                 loginResult.Wait();
 

@@ -7,53 +7,76 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-
-
 namespace Teacher
 {
 
     public partial class Streaming : Form
     {
         private NetworkManager.NetworkManager _netManager;
-        private string _studentUsername;
-        public Streaming(NetworkManager.NetworkManager netManager, string username)
+        private string _student_username;
+        public  Streaming(NetworkManager.NetworkManager netManager,string student_username)
         {
             InitializeComponent();
             _netManager = netManager;
-            _studentUsername = username;  // Store it
-   
+            _student_username = student_username;
+            this.Load += Streaming_Load; // defer the async method to the Load event
         }
 
+
+        private async void Streaming_Load(object sender, EventArgs e)
+        {
+            await Capture_remote_screen();
+        }
 
         private void ShowRdpViewer(string invitationString)
         {
+            Thread staThread = new Thread(() =>
+            {
+                var viewerForm = new Form
+                {
+                    Text = "RDP Viewer",
+                    Size = new Size(800, 600)
+                };
 
-            var viewerForm = new Form();
-            viewerForm.Text = "RDP Viewer";
-            viewerForm.Size = new Size(800, 600);
+                var rdpViewer = new AxRDPCOMAPILib.AxRDPViewer();
 
-            var rdpViewer = new AxRDPCOMAPILib.AxRDPViewer();
-            rdpViewer.Dock = DockStyle.Fill;
+                ((ISupportInitialize)rdpViewer).BeginInit();
+                viewerForm.Controls.Add(rdpViewer);
+                rdpViewer.Dock = DockStyle.Fill;
+                ((ISupportInitialize)rdpViewer).EndInit();
 
-            viewerForm.Controls.Add(rdpViewer);
-            viewerForm.Show();
+                viewerForm.Shown += (s, e) =>
+                {
+                    try
+                    {
+                        rdpViewer.Connect(invitationString, "", "");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"RDP Connect error: {ex.Message}");
+                    }
+                };
 
-            rdpViewer.Connect(invitationString, "", "");
+                Application.Run(viewerForm);
+            });
+
+            staThread.SetApartmentState(ApartmentState.STA);
+            staThread.Start();
         }
+
+
 
 
         public async Task<bool> Capture_remote_screen()
         {
             try
             {
-                MessageBox.Show("Capture_remote_screen from teacher");
                 var capture_screen_message = new Teacher.MessageModel.Streaming_message
                 {
-                    target_username = _studentUsername, 
-
+                    target_username = _student_username,
                 };
 
                 // Check if netManager is connected
@@ -80,10 +103,9 @@ namespace Teacher
                     var Invitation = doc.RootElement.GetProperty("image_data").GetString();
                     MessageBox.Show($"Message from teacher after receving response capture screen {Invitation.Length.ToString()}");
                     //MessageBox.Show("Token length received from teacher: ",Invitation.Length.ToString());
-                    //ShowRdpViewer(Invitation);
-                }
+                    this.Invoke((MethodInvoker)(() => ShowRdpViewer(Invitation)));
 
-                
+                }
             }
             catch (Exception ex)
             {
@@ -93,22 +115,6 @@ namespace Teacher
         }
 
 
-     
 
-        private void Capture_screen_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            //axRDPViewer1.Disconnect();
-        }
-
-        private void Capture_screen_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private async void Streaming_Load(object sender, EventArgs e)
-        {
-            await Capture_remote_screen();
-
-        }
     }
 }

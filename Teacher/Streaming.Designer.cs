@@ -37,11 +37,11 @@
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Name = "Streaming";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Streaming_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+        private AxRDPCOMAPILib.AxRDPViewer axRDPViewer1;
     }
 }
