@@ -93,6 +93,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthService.cs" />
+    <Compile Include="ListViewItemComparer.cs" />
+    <Compile Include="ShowApp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ShowApp.Designer.cs">
+      <DependentUpon>ShowApp.cs</DependentUpon>
+    </Compile>
     <Compile Include="StudentPanel.cs" />
     <Compile Include="Notify.cs">
       <SubType>Form</SubType>

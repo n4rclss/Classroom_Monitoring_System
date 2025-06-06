@@ -34,7 +34,6 @@ namespace Teacher.NetworkManager
             {
                 await _client.ConnectAsync(host, port).ConfigureAwait(false);
                 _stream = _client.GetStream();
-                // Use BinaryReader instead of StreamReader for length-prefixed protocol
                 _reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true);
                 _isConnected = true;
                 Console.WriteLine($"Successfully connected to load balancer at {host}:{port}");
