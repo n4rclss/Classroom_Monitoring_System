@@ -11,6 +11,12 @@ def initialize_sample_data(db):
         ("stu1", "s", "student"),
         ("stu2", "ss", "student"),
         ("stu3", "sss", "student"),
+        ("stu4", "s4", "student"),
+        ("stu5", "s5", "student"),
+        ("stu6", "s6", "student"),
+        ("stu7", "s7", "student"),
+        ("stu8", "s8", "student"),
+        ("stu9", "s9", "student"),
     ]
 
     with db._get_cursor() as cursor:
@@ -21,7 +27,7 @@ def initialize_sample_data(db):
         """,
             sample_users,
         )
-    print("Added sample users: teacher, stu1, stu2, stu3")
+    print("Added sample users: " + " ".join(user[0] for user in sample_users))
 
 def clear_all_data(db):
     """Clear all data from the database"""
