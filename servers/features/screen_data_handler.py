@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 
 async def handle_screen_data(
+    db: ClassroomDatabase,
     sender_func: 'NotificationSender',
     client_id: str,
     screen_data_packet: PacketScreenData

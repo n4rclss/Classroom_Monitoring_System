@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import asyncio
 import struct
 import json
@@ -13,7 +12,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.sqlite_db import ClassroomDatabase
 # Import all necessary packet types
-from utils.packets import *
+from utils.packets import (
+    PacketLogin, PacketCreateRoom, PacketLogout, PacketJoinRoom, 
+    PacketRefresh, PacketNotify, PacketStreaming, PacketScreenData,
+    PacketScreenData, PacketReturnApp, PacketRequestApp
+)
 from utils.logger import setup_logger # Assuming logger setup is desired
 
 # Import all handlers
@@ -49,6 +52,7 @@ def create_response_packet(client_id: str, status: str, message: str) -> bytes:
 def create_push_packet(target_client_id: str, payload: dict) -> bytes:
     """Creates a wrapped PUSH packet (notification, command, data) to send to a target client via LB."""
     push_payload_bytes = json.dumps(payload).encode("utf-8")
+
     client_id_bytes = target_client_id.encode("utf-8")
     client_id_len = len(client_id_bytes)
     server_push_wrapper_payload = struct.pack("!B", client_id_len) + client_id_bytes + push_payload_bytes
@@ -60,11 +64,14 @@ async def send_push_to_client(writer: asyncio.StreamWriter, target_client_id: st
     """Sends a push payload (notification, command, data) to a specific client via the Load Balancer."""
     try:
         push_packet = create_push_packet(target_client_id, payload)
+        # print(f"[*] Sending push packet ({len(push_packet)} bytes) to LB for routing to client {target_client_id}")
         writer.write(push_packet)
         await writer.drain()
         # print(f"[*] Successfully sent push packet for {target_client_id} to LB.")
     except ConnectionResetError:
         print(f"[!] Connection reset while trying to send push to LB (targeting {target_client_id}). LB might be down.")
+        # Attempt to clean up the target client if possible? Difficult here.
+        # db.unregister_client_by_id(target_client_id) # Risky without knowing user
         raise
     except Exception as e:
         print(f"[!] Error sending push packet for {target_client_id} to LB: {type(e).__name__} - {e}")
@@ -105,7 +112,7 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
             print(f"[*] Received data from LB for client 	'{client_id}': {original_client_data.decode('utf-8', errors='ignore')}")
 
             # 4. Process the original client data
-            response_packet = None
+            response_packet = None # Default: No direct response needed unless specified by handler
             
             try:
                 request_json = original_client_data.decode("utf-8")
@@ -117,8 +124,11 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                 if request_type == "login":
                     try:
                         login_packet = PacketLogin.model_validate(request_data)
+                        # handle_login performs authentication against DB users table
                         status, message = await handle_login(db, client_id, login_packet)
                         if status == "success":
+                            # Register the client mapping in the DB upon successful login
+                            # This now uses the database method
                             if not db.register_client(login_packet.username, client_id):
                                 # Handle potential DB error during registration
                                 print(f"[!] Failed to register client 	'{login_packet.username}' in DB.")
@@ -156,6 +166,8 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                         print(f"[!] Invalid log out packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid logout data: {e}")
 
+
+
                 elif request_type == "join_room":
                     try:
                         print("++++++++JOIN_ROOM++++++++++++++")
@@ -166,6 +178,10 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                         print(f"[!] Invalid join room packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid join room data: {e}")
 
+
+
+
+
                 elif request_type == "refresh":
                     try:
                         print("++++++++REFRESH++++++++++++++")
@@ -175,6 +191,8 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                     except ValidationError as e:
                         print(f"[!] Invalid refresh packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid refresh data: {e}")
+
+
 
                 elif request_type == "notify":
                     try:
@@ -197,8 +215,7 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                     except ValidationError as e:
                         print(f"[!] Invalid streaming request packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid streaming request data: {e}")
-                        
-                        
+                  
                 elif request_type == "screen_data":
                     try:
                         print("++++++++SCREEN DATA RECEIVED++++++++++++++")
@@ -206,12 +223,13 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
 
                         status, message = await handle_screen_data(db, sender_func, client_id, screen_data_packet)
                         response_packet = create_response_packet(client_id, status, message)
-
                     except ValidationError as e:
-                        print(f"[!] Invalid screen_data packet structure from client {client_id}: {e}")
-                        response_packet = create_response_packet(client_id, "error", f"Invalid screen_data data: {e}")
+                        print(f"[!] Invalid request screen data structure from client {client_id}: {e}")
+                        response_packet = create_response_packet(client_id, "error", f"Invalid request app data: {e}")
                 
-                # ----- Running application information handling ------- #
+                
+                
+                
                 elif request_type == "request_app":
                     try:
                         print("++++++++REQUEST APP DATA++++++++++++++")
@@ -220,6 +238,7 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                     except ValidationError as e:
                         print(f"[!] Invalid request app packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid request app data: {e}")
+                
                 
                 elif request_type == "return_app":
                     try:
@@ -231,7 +250,9 @@ async def handle_connection(reader: asyncio.StreamReader, writer: asyncio.Stream
                         print(f"[!] Invalid return app packet structure from client {client_id}: {e}")
                         response_packet = create_response_packet(client_id, "error", f"Invalid return app data: {e}")
                 
-                else:                  
+                else:
+         
+                  
                     print(f"[!] Unknown request type 	'{request_type}' from client {client_id}")
                     response_packet = create_response_packet(client_id, "error", f"Unknown request type: {request_type}")
 

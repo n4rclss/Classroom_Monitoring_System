@@ -19,6 +19,7 @@ class ClassroomDatabase:
         """Provides a database cursor within a context manager."""
         # Using WAL mode can improve concurrency for readers and one writer
         conn = sqlite3.connect(self.db_path, timeout=10) # Add timeout
+        conn.execute("PRAGMA foreign_keys = ON")  # 
         conn.execute("PRAGMA journal_mode=WAL;") # Enable WAL mode
         conn.row_factory = sqlite3.Row
         try:
@@ -128,11 +129,18 @@ class ClassroomDatabase:
             return result['role'] if result else None
 
     # --- Active Client Mapping (for Multi-Server) --- 
+
     def register_client(self, username: str, client_id: str) -> bool:
         """Registers or updates the client_id for a given username in the database."""
         now = datetime.datetime.utcnow().isoformat()
         try:
             with self._get_cursor() as cursor:
+                # Use INSERT OR REPLACE to handle both new registrations and updates
+                # This assumes username is the primary key for active clients.
+                # We also need to ensure client_id uniqueness manually if a user logs 
+                # in elsewhere before the old entry is cleared.
+                
+                # First, remove any existing entry for this client_id (if different user)
                 cursor.execute("DELETE FROM active_clients WHERE client_id = ? AND username != ?", (client_id, username))
                 if cursor.rowcount > 0:
                     print(f"[!] Cleared stale client_id 	'{client_id}' from previous user during registration of '{username}'.")
@@ -145,6 +153,9 @@ class ClassroomDatabase:
                 print(f"[*] DB: Registered/Updated client: User 	'{username}' -> ClientID '{client_id}'")
                 return True
         except sqlite3.IntegrityError as e:
+            # This might happen if the client_id UNIQUE constraint is violated *after* the delete check
+            # (e.g., race condition, though less likely with WAL and short transactions)
+            # Or if the username FK constraint fails (user doesn't exist)
             print(f"[!] DB Integrity Error registering client 	'{username}' with client_id '{client_id}': {e}")
             return False
         except sqlite3.Error as e:
@@ -176,7 +187,8 @@ class ClassroomDatabase:
                     print(f"[*] DB: Unregistered client by ClientID 	'{client_id}'.")
                     return True
                 else:
-                    # Not an error, might have already been unregistered)
+                    # Not an error, might have already been unregistered
+                    # print(f"[*] DB: No active client found to unregister for ClientID 	'{client_id}'.")
                     return True # Still considered success
         except sqlite3.Error as e:
             print(f"[!] DB Error unregistering client by ClientID 	'{client_id}': {e}")
@@ -188,6 +200,7 @@ class ClassroomDatabase:
             with self._get_cursor(commit_on_exit=False) as cursor:
                 cursor.execute("SELECT client_id FROM active_clients WHERE username = ?", (username,))
                 result = cursor.fetchone()
+                # print(f"[*] DB: Lookup client_id for user 	'{username}': {'Found ' + result['client_id'] if result else 'Not Found'}")
                 return result['client_id'] if result else None
         except sqlite3.Error as e:
             print(f"[!] DB Error getting client_id for user 	'{username}': {e}")

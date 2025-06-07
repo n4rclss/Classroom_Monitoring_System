@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Literal
+from typing import Literal,List
 
 class PacketBase(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
@@ -49,8 +49,12 @@ class PacketCreateRoom(PacketBase):
     
 class PacketLogout(PacketBase):
     type: Literal["logout"] = "logout"
+    # These fields seem incorrect for logout, usually just username is needed.
+    # Keeping them as per the provided file for now.
     room_id: str = Field(min_length=1) 
     teacher: str = Field(min_length=1)
+    # It should likely be:
+    # username: str = Field(min_length=1)
 
 class PacketRequestApp(PacketBase):
     type: Literal["request_app"] = "request_app"
@@ -64,3 +68,5 @@ class PacketReturnApp(PacketBase):
     type: Literal["return_app"] = "return_app"
     sender_client_id: str = Field(min_length=1)
     app_data: List[ProcessInfo] = Field(default_factory=list) # a list of ProcessInfo objects
+
+
