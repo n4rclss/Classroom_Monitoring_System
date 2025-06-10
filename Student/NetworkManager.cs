@@ -145,7 +145,7 @@ namespace Student.NetworkManager
                                 }
                                 string teacherClientId = senderIdElement.GetString();
                                 List<RunningAppMessage.ProcessInfo> runningApps = _runningAppHelper.GetRunningAppsInfo();
-                                _runningAppHelper.ShowRunningAppsJson();
+                                //_runningAppHelper.ShowRunningAppsJson();
                                 var responsePacket = new RunningAppMessage
                                 {
 
