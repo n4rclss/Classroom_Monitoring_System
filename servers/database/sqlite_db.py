@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from typing import Dict, List, Optional
 import os
 import datetime
+import bcrypt
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 default_db_path = os.path.join(script_dir, 'classroom.db')
@@ -34,6 +35,7 @@ class ClassroomDatabase:
             raise # Re-raise the exception after logging/rollback
         finally:
             conn.close()
+        
     def fetch_all(self, query: str, params: tuple = ()) -> List[sqlite3.Row]:
         try:
             with self._get_cursor(commit_on_exit=False) as cursor:
@@ -115,12 +117,16 @@ class ClassroomDatabase:
     # --- User Authentication --- 
     def authenticate(self, username: str, password: str, role: str) -> bool:
         with self._get_cursor(commit_on_exit=False) as cursor:
-            # print("Authenticating user:", username, "with role:", role)
             cursor.execute('''
-                SELECT 1 FROM users 
-                WHERE username = ? AND password = ? AND role = ?
-            ''', (username, password, role))
-            return cursor.fetchone() is not None
+                SELECT password FROM users 
+                WHERE username = ? AND role = ?
+            ''', (username, role))
+            row = cursor.fetchone()
+            if row:
+                hashed_pw = row['password']
+                # bcrypt expects bytes
+                return bcrypt.checkpw(password.encode('utf-8'), hashed_pw.encode('utf-8'))
+            return False
 
     def get_role(self, username: str) -> Optional[str]:
         with self._get_cursor(commit_on_exit=False) as cursor:
