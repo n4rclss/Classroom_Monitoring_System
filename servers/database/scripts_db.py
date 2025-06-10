@@ -3,14 +3,21 @@ import sqlite3
 import argparse
 import sys
 import os
+import bcrypt
 
 def initialize_sample_data(db):
     """Initialize database with sample test data"""
+    import bcrypt
     sample_users = [
         ("teacher", "t", "teacher"),
         ("stu1", "s", "student"),
         ("stu2", "ss", "student"),
         ("stu3", "sss", "student"),
+    ]
+
+    hashed_users = [
+        (username, bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'), role)
+        for username, password, role in sample_users
     ]
 
     with db._get_cursor() as cursor:
@@ -19,10 +26,10 @@ def initialize_sample_data(db):
             INSERT OR IGNORE INTO users (username, password, role)
             VALUES (?, ?, ?)
         """,
-            sample_users,
+            hashed_users,
         )
     print("Added sample users: teacher, stu1, stu2, stu3")
-
+    
 def clear_all_data(db):
     """Clear all data from the database"""
     with db._get_cursor() as cursor:
@@ -51,28 +58,31 @@ def list_users(db):
             # Corrected f-string usage with single quotes for keys
             print(f"{user['username']:<20} {user['role']:<10}")
 
+
 def add_user(db, username, password, role):
     """Add a new user to the database"""
     if role not in ("teacher", "student"):
-        # Corrected string quotes
         print("Error: Role must be either 'teacher' or 'student'")
         return
 
     try:
+        # Hash the password using bcrypt
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         with db._get_cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO users (username, password, role)
                 VALUES (?, ?, ?)
             """,
-                (username, password, role),
+                (username, hashed_pw.decode('utf-8'), role),
             )
         print(f"Successfully added user: {username} ({role})")
     except sqlite3.IntegrityError:
-        # Corrected f-string usage with single quotes around variable
         print(f"Error: User '{username}' already exists")
     except sqlite3.Error as e:
         print(f"Database error adding user: {e}")
+# ...existing code...
+
 
 def delete_user(db, username):
     """Delete a user from the database (cascades to rooms/participants)"""
