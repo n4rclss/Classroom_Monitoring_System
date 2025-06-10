@@ -28,8 +28,8 @@ namespace Student.NetworkManager
         private readonly object _connectLock = new object(); // Lock for connect/dispose operations
 
         // Updated to use load balancer address and port
-        private const string DefaultServerAddress = "127.0.0.1";
-        private const int DefaultServerPort = 8000;
+        private const string DefaultServerAddress = "192.168.116.128";
+        private const int DefaultServerPort = 5000;
 
         public event EventHandler Disconnected;
         public bool IsConnected => _isConnected;
